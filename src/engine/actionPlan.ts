@@ -64,7 +64,10 @@ export function computeAggregates(
 
   const totalMonthlyDebtFen = debts.reduce((s, d) => s + d.currentAmountDueFen, 0)
   const monthlyBalanceFen = totalMonthlyIncomeFen - totalMonthlyExpenseFen - totalMonthlyDebtFen
-  const totalDebtPrincipalFen = debts.reduce((s, d) => s + d.outstandingPrincipalFen, 0)
+  const totalDebtPrincipalFen = debts.reduce((s, d) => {
+    // Use outstanding principal if available; otherwise fall back to current amount due
+    return s + (d.outstandingPrincipalFen > 0 ? d.outstandingPrincipalFen : d.currentAmountDueFen)
+  }, 0)
   const dti = totalMonthlyIncomeFen > 0 ? (totalMonthlyDebtFen / totalMonthlyIncomeFen) * 100 : 0
 
   const highInterestDebtFen = debts
