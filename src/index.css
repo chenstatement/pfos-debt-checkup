@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/* ── Apple Design Tokens ─────────────────────────────────── */
+:root {
+  --apple-blue: #007AFF;
+  --apple-red: #FF3B30;
+  --apple-orange: #FF9500;
+  --apple-yellow: #FFCC00;
+  --apple-green: #34C759;
+  --apple-gray: #8E8E93;
+  --apple-bg: #F2F2F7;
+  --apple-card: #FFFFFF;
+  --apple-text: #1C1C1E;
+  --apple-text-secondary: #6E6E73;
+  --apple-separator: #E5E5EA;
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--apple-bg);
+  color: var(--apple-text);
+  letter-spacing: -0.01em;
+}
+
+/* ── Apple-style card ─────────────────────────────────────── */
+.apple-card {
+  background: var(--apple-card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  border: none;
+}
+
+/* ── Frosted glass card ───────────────────────────────────── */
+.apple-glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* ── Apple-style button ───────────────────────────────────── */
+.apple-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+.apple-btn-primary {
+  background: var(--apple-blue);
+  color: white;
+}
+.apple-btn-primary:hover { opacity: 0.88; }
+.apple-btn-primary:active { transform: scale(0.975); opacity: 0.78; }
+.apple-btn-secondary {
+  background: rgba(0,0,0,0.04);
+  color: var(--apple-text);
+}
+.apple-btn-secondary:hover { background: rgba(0,0,0,0.08); }
+
+/* ── Apple-style input ────────────────────────────────────── */
+.apple-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(0,0,0,0.02);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  font-size: 16px;
+  color: var(--apple-text);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.apple-input:focus {
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+}
+.apple-input::placeholder { color: rgba(0,0,0,0.24); }
+
+/* ── Amount mask ──────────────────────────────────────────── */
+.amount-masked {
+  filter: blur(6px);
+  transition: filter 0.2s ease;
+  cursor: pointer;
+}
+.amount-masked:hover { filter: blur(3px); }
+.amount-visible { filter: none; }
+
+/* ── Safe area ────────────────────────────────────────────── */
+.safe-bottom { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+.safe-top { padding-top: max(12px, env(safe-area-inset-top)); }
+
+/* ── Tap feedback ─────────────────────────────────────────── */
+.tap-active:active { transform: scale(0.975); transition: transform 0.1s ease; }
+
+/* ── Progress bar ─────────────────────────────────────────── */
+.step-dot {
+  width: 28px; height: 4px;
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+.step-dot-active { background: var(--apple-blue); }
+.step-dot-inactive { background: rgba(0,0,0,0.1); }
+
+/* ── Section title ────────────────────────────────────────── */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--apple-text);
+}
+.section-subtitle {
+  font-size: 14px;
+  color: var(--apple-text-secondary);
+  line-height: 1.4;
+}
