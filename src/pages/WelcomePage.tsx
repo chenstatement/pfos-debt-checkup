@@ -70,7 +70,7 @@ export default function WelcomePage() {
   查看我的债务报告
             </button>
             <button onClick={() => navigate('/wizard')} className="apple-btn apple-btn-secondary w-full">
-  补充债务信息
+  继续录入数据
             </button>
           </>
         ) : hasConsented ? (
