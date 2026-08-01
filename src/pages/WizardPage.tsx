@@ -100,14 +100,24 @@ export default function WizardPage() {
 
   return (
     <div className="min-h-screen safe-bottom" style={{ background: '#F2F2F7' }}>
-      <div className="max-w-md mx-auto px-5 pt-6 pb-8">
-        {/* ── Dot progress ── */}
-        <div className="flex justify-center gap-2 mb-8">
-          {STEPS.map((s, i) => (
-            <div key={s.key} className={`step-dot ${i <= step ? 'step-dot-active' : 'step-dot-inactive'}`} />
-          ))}
+      {/* ── Sticky header ── */}
+      <div className="sticky top-0 z-10 safe-top pb-3"
+           style={{ background: 'rgba(242,242,247,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+        <div className="max-w-md mx-auto px-5 pt-3">
+          <div className="flex justify-between items-center mb-4">
+            <button onClick={() => nav(data.debts.length > 0 ? '/dashboard' : '/')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>关闭</button>
+            <p className="text-[13px] font-medium text-[#8E8E93]">{STEPS[step].label}</p>
+            <div className="w-10" />
+          </div>
+          <div className="flex justify-center gap-2">
+            {STEPS.map((s, i) => (
+              <div key={s.key} className={`step-dot ${i <= step ? 'step-dot-active' : 'step-dot-inactive'}`} />
+            ))}
+          </div>
         </div>
-        <p className="text-center text-[12px] mb-6" style={{ color: '#8E8E93' }}>{STEPS[step].label}</p>
+      </div>
+
+      <div className="max-w-md mx-auto px-5 pb-8">
 
         {/* ── Step 0: Current cash ─────────────────────────── */}
         {step === 0 && (
