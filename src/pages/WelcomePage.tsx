@@ -4,7 +4,8 @@ import { DISCLAIMER_TEXT, DISCLAIMER_VERSION } from '../domain/constants'
 
 export default function WelcomePage() {
   const navigate = useNavigate()
-  const { hasConsented, acceptConsent } = useApp()
+  const { data, hasConsented, acceptConsent } = useApp()
+  const hasData = data.debts.length > 0
 
   const handleAccept = () => {
     acceptConsent('risk_disclosure')
@@ -59,17 +60,30 @@ export default function WelcomePage() {
         </p>
       </div>
 
-      {/* CTA */}
+      {/* CTA — 根据状态显示不同按钮 */}
       <div className="w-full max-w-sm space-y-3">
-        <button
-          onClick={handleAccept}
-          className="apple-btn apple-btn-primary w-full py-3.5 text-[17px]"
-          style={{ boxShadow: '0 4px 16px rgba(0,122,255,0.3)' }}>
-          我已了解，开始整理财务
-        </button>
-        {hasConsented && (
-          <button onClick={() => navigate('/wizard')} className="apple-btn apple-btn-secondary w-full">
+        {hasData ? (
+          <>
+            <button onClick={() => navigate('/dashboard')}
+                    className="apple-btn apple-btn-primary w-full py-3.5 text-[17px]"
+                    style={{ boxShadow: '0 4px 16px rgba(0,122,255,0.3)' }}>
+              查看我的财务报告
+            </button>
+            <button onClick={() => navigate('/wizard')} className="apple-btn apple-btn-secondary w-full">
+              修改录入数据
+            </button>
+          </>
+        ) : hasConsented ? (
+          <button onClick={() => navigate('/wizard')}
+                  className="apple-btn apple-btn-primary w-full py-3.5 text-[17px]"
+                  style={{ boxShadow: '0 4px 16px rgba(0,122,255,0.3)' }}>
             继续录入数据
+          </button>
+        ) : (
+          <button onClick={handleAccept}
+                  className="apple-btn apple-btn-primary w-full py-3.5 text-[17px]"
+                  style={{ boxShadow: '0 4px 16px rgba(0,122,255,0.3)' }}>
+            开始财务体检
           </button>
         )}
       </div>
