@@ -93,7 +93,7 @@ export default function WizardPage() {
   // ── Inline form fields ────────────────────────────────────
   const [ifm, setIfm] = useState({ label: '', amount: '', day: '15', recurring: true, oneTimeDate: '', certainty: 'confirmed' as any })
   const [efm, setEfm] = useState({ label: '', amount: '', day: '1', recurring: true, oneTimeDate: '', essential: true, deferrable: false })
-  const [dfm, setDfm] = useState({ platform: '', debtType: 'credit_card' as DebtType, currentDue: '', monthly: '', nextDueDate: '', overdue: false, overdueDays: '', overdueAmount: '', expectedRepayDate: '', dueDay: 20, annualRate: '', termRemaining: '', termKnown: false, principal: '', collectionPressure: 'none' })
+  const [dfm, setDfm] = useState({ platform: '', debtType: 'credit_card' as DebtType, currentDue: '', monthly: '', nextDueDate: '', overdue: false, overdueDays: '', overdueAmount: '', expectedRepayDate: '', dueDay: 20, annualRate: '', termRemaining: '', termKnown: false, principal: '', collectionPressure: 'none', repayMethod: 'unknown' })
   const [afm, setAfm] = useState({ type: 'deposit', label: '', amount: '', ownership: 'personal', realizableAmount: '', availabilityKnown: true, availableDate: '', note: '' })
 
   const canNext = step === 0 ? parseFloat(snap.availableCashYuan) >= 0 : step === 3 ? debts.length > 0 : true
@@ -193,6 +193,17 @@ export default function WizardPage() {
                 {Object.entries(DEBT_TYPE_LABELS).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
               </select>
               <input type="text" placeholder="平台/机构名称" value={dfm.platform} onChange={e => setDfm({...dfm, platform: e.target.value})} className={inputCls} />
+              <div>
+                <label className={labelCls}>还款方式</label>
+                <select value={dfm.repayMethod || 'unknown'} onChange={e => setDfm({...dfm, repayMethod: e.target.value})} className={inputCls}>
+                  <option value="unknown">请选择</option>
+                  <option value="equal_installment">分期等额还款</option>
+                  <option value="balloon">一次性还本付息</option>
+                  <option value="interest_first">先息后本</option>
+                  <option value="minimum_payment">最低还款额</option>
+                  <option value="flexible">灵活还款</option>
+                </select>
+              </div>
               <input type="text" inputMode="decimal" placeholder="本期应还金额" value={dfm.currentDue} onChange={e => setDfm({...dfm, currentDue: e.target.value})} className={inputCls} />
               <input type="date" value={dfm.nextDueDate} onChange={e => { setDfm({...dfm, nextDueDate: e.target.value}); if (e.target.value) setDfm(p => ({...p, dueDay: Number(e.target.value.slice(-2))})) }} className={inputCls} />
               <input type="text" inputMode="decimal" placeholder="之后每月常规还款额（选填，不填则只计首期）" value={dfm.monthly} onChange={e => setDfm({...dfm, monthly: e.target.value})} className={inputCls} />
@@ -229,13 +240,13 @@ export default function WizardPage() {
                   nextDueDate: dfm.nextDueDate || '', dueDay: dfm.dueDay,
                   termKnown: dfm.termKnown, termRemaining: dfm.termRemaining ? parseInt(dfm.termRemaining)||undefined : undefined,
                   annualRateBps: dfm.annualRate ? Math.round(parseFloat(dfm.annualRate)*100) : undefined,
-                  repaymentMethod: 'unknown', status: dfm.overdue ? 'overdue' : 'normal',
+                  repaymentMethod: dfm.repayMethod as any, status: dfm.overdue ? 'overdue' : 'normal',
                   overdueSince: dfm.overdue ? (dfm.nextDueDate || todayISO()) : undefined,
                   expectedRepayDate: dfm.overdue ? (dfm.expectedRepayDate || undefined) : undefined,
                   hasCollateral: false, hasGuarantor: false, hasCoBorrower: false,
                   dataConfidence: 'estimated', source: 'manual', createdAt: now, updatedAt: now,
                 }])
-                setDfm({ platform: '', debtType: 'credit_card', currentDue: '', monthly: '', nextDueDate: '', overdue: false, overdueDays: '', overdueAmount: '', expectedRepayDate: '', dueDay: 20, annualRate: '', termRemaining: '', termKnown: false, principal: '', collectionPressure: 'none' })
+                setDfm({ platform: '', debtType: 'credit_card', currentDue: '', monthly: '', nextDueDate: '', overdue: false, overdueDays: '', overdueAmount: '', expectedRepayDate: '', dueDay: 20, annualRate: '', termRemaining: '', termKnown: false, principal: '', collectionPressure: 'none', repayMethod: 'unknown' })
               }} disabled={!dfm.platform.trim() || !(parseFloat(dfm.currentDue) > 0 || parseFloat(dfm.monthly) > 0 || parseFloat(dfm.overdueAmount) > 0)}
                       className={btnSec} style={{ opacity: (!dfm.platform.trim() || !(parseFloat(dfm.currentDue) > 0 || parseFloat(dfm.monthly) > 0 || parseFloat(dfm.overdueAmount) > 0)) ? 0.3 : 1 }}>
                 添加这笔债务
