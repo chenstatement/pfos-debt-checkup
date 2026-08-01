@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../store/AppContext'
+import StickyHeader from '../components/StickyHeader'
 import { formatFenAsYuan } from '../domain/money'
 import { DEBT_TYPE_LABELS } from '../domain/constants'
 import { sortDebtsByPriority } from '../engine/debtPriority'
@@ -31,12 +32,7 @@ export default function DebtListPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-3">
-      {/* Top nav */}
-      <div className="flex items-center gap-2 mb-1">
-        <button onClick={() => navigate('/dashboard')} className="text-pfos-text-muted hover:text-pfos-text p-1 -ml-1">
-          ← 返回
-        </button>
-      </div>
+      <StickyHeader title="债务台账" />
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-bold text-pfos-text">债务台账</h1>
         <button onClick={() => navigate('/wizard')} className="text-sm text-pfos-accent font-medium">

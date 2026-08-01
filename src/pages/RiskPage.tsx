@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { formatFenAsYuan } from '../domain/money'
 import { RISK_REASON_LABELS, RISK_LEVEL_INFO, PRIORITY_INFO, DEBT_TYPE_LABELS } from '../domain/constants'
+import StickyHeader from '../components/StickyHeader'
 import type { FullReport } from '../engine/report'
 import type { DebtAccount } from '../domain/types'
 
@@ -24,8 +25,7 @@ export default function RiskPage({ report, activeDebts }: { report: FullReport |
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-4">
-      <button onClick={() => navigate('/dashboard')} className="text-sm text-pfos-text-muted">← 返回</button>
-      <h1 className="text-lg font-bold text-pfos-text">风险与优先级</h1>
+      <StickyHeader title="风险与优先级" />
 
       {/* Data quality */}
       <div className={`rounded-xl p-3 border ${

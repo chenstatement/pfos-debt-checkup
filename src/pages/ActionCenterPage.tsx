@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../store/AppContext'
 import { PRIORITY_INFO, ACTION_CODE_LABELS } from '../domain/constants'
+import StickyHeader from '../components/StickyHeader'
 import type { FullReport } from '../engine/report'
 
 export default function ActionCenterPage({ report }: { report: FullReport | null }) {
@@ -24,8 +25,7 @@ export default function ActionCenterPage({ report }: { report: FullReport | null
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-4">
-      <button onClick={() => navigate('/dashboard')} className="text-sm text-pfos-text-muted">← 返回</button>
-      <h1 className="text-lg font-bold text-pfos-text">行动中心</h1>
+      <StickyHeader title="行动计划" />
 
       {/* Top action — highlighted */}
       {report.topAction && !completedActions.includes(report.topAction.id) && (

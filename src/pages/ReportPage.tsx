@@ -64,8 +64,7 @@ export default function ReportPage({ report }: { report: FullReport | null }) {
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-4">
       <div className="flex justify-between items-center">
-        <button onClick={() => navigate('/dashboard')} className="text-sm text-pfos-text-muted">← 返回</button>
-      <h1 className="text-lg font-bold text-pfos-text">财务体检报告</h1>
+        <StickyHeader title="体检报告" />
         <button onClick={handleExport} className="text-xs bg-pfos-accent text-white px-3 py-1.5 rounded-lg font-medium">
           导出报告
         </button>

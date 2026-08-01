@@ -1,14 +1,13 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { formatFenAsYuan } from '../domain/money'
 import { aggregateMonthly } from '../engine/nowcast'
+import StickyHeader from '../components/StickyHeader'
 import type { FullReport } from '../engine/report'
 
 function dayOfWeek(iso: string) { return ['日','一','二','三','四','五','六'][new Date(iso).getDay()] }
 function fmtShort(iso: string) { const [,m,d] = iso.split('-'); return `${parseInt(m)}/${parseInt(d)}` }
 
 export default function CashflowPage({ report }: { report: FullReport | null }) {
-  const nav = useNavigate()
   const [showAll, setShowAll] = useState(false)
   const [sel, setSel] = useState<string | null>(null)
 
@@ -29,11 +28,7 @@ export default function CashflowPage({ report }: { report: FullReport | null }) 
   return (
     <div className="min-h-screen safe-bottom" style={{ background: '#F2F2F7' }}>
       <div className="max-w-md mx-auto px-5 pt-6 pb-8 space-y-5">
-        <div className="flex items-center justify-between">
-          <button onClick={() => nav('/dashboard')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>← 返回</button>
-          <h1 className="text-[17px] font-semibold text-[#1C1C1E]">现金流</h1>
-          <div style={{ width: 48 }} />
-        </div>
+        <StickyHeader title="现金流预测" />
 
         {/* Summary */}
         <div className="grid grid-cols-2 gap-3">
