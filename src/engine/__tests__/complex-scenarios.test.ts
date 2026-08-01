@@ -253,3 +253,126 @@ describe('Complex multi-debt scenarios', () => {
     expect(all.length).toBe(2)
   })
 })
+
+describe('还款方式测试', () => {
+
+  it('一次性还本付息(balloon)：到期日一笔还清本金，之前无任何月供', () => {
+    const debts: DebtAccount[] = [
+      d('d_balloon', {
+        creditorName: '企业经营贷', debtType: 'bank_consumer_loan',
+        outstandingPrincipalFen: 500_000_00,  // 50万
+        currentAmountDueFen: 0,               // 平时无月供
+        nextDueDate: '2026-10-15',            // 到期日
+        repaymentMethod: 'balloon' as any,
+        status: 'normal',
+      }),
+    ]
+
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+
+    // 到期日10月15日应有一笔50万还款
+    const oct15 = ledger.find(d => d.date === '2026-10-15')
+    expect(oct15).toBeDefined()
+    const ev = oct15!.events.find(e => e.label.includes('企业经营贷'))
+    expect(ev).toBeDefined()
+    expect(ev!.amountFen).toBe(500_000_00)
+    expect(ev!.label).toContain('到期还本')
+
+    // 之前9月15日不应有任何还款
+    const sep15 = ledger.find(d => d.date === '2026-09-15')
+    const sepEv = sep15?.events.filter(e => e.label.includes('企业经营贷'))
+    expect(sepEv?.length || 0).toBe(0)
+
+    // 之后11月15日也不应有
+    const nov15 = ledger.find(d => d.date === '2026-11-15')
+    const novEv = nov15?.events.filter(e => e.label.includes('企业经营贷'))
+    expect(novEv?.length || 0).toBe(0)
+  })
+
+  it('先息后本(interest_first)：到期日还本，无月供', () => {
+    const debts: DebtAccount[] = [
+      d('d_interest', {
+        creditorName: '抵押经营贷', debtType: 'secured_loan',
+        outstandingPrincipalFen: 1_000_000_00,
+        currentAmountDueFen: 0,
+        nextDueDate: '2026-09-01',
+        repaymentMethod: 'interest_first' as any,
+        status: 'normal',
+      }),
+    ]
+
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+
+    const sep1 = ledger.find(d => d.date === '2026-09-01')
+    const ev = sep1!.events.find(e => e.label.includes('抵押经营贷'))
+    expect(ev).toBeDefined()
+    expect(ev!.amountFen).toBe(1_000_000_00)
+
+    // 之前之后均无
+    const allPayments = ledger.flatMap(d => d.events.filter(e => e.label.includes('抵押经营贷')))
+    expect(allPayments.length).toBe(1)
+  })
+
+  it('分期等额(equal_installment)：月供按期排程，5期可见3期', () => {
+    const debts: DebtAccount[] = [
+      d('d_equal', {
+        creditorName: '消费分期', debtType: 'installment',
+        outstandingPrincipalFen: 30_000_00,
+        currentAmountDueFen: 6000_00,
+        monthlyPaymentFen: 6000_00,
+        nextDueDate: '2026-08-10',
+        dueDay: 10,
+        termKnown: true, termRemaining: 5,
+        repaymentMethod: 'equal_installment' as any,
+        status: 'normal',
+      }),
+    ]
+
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+    const all = ledger.flatMap(d => d.events.filter(e => e.label.includes('消费分期')))
+    // 90天窗: 8/10, 9/10, 10/10 = 3次
+    expect(all.length).toBe(3)
+    all.forEach(ev => expect(ev.amountFen).toBe(6000_00))
+  })
+
+  it('最低还款(minimum_payment)：按月供排程', () => {
+    const debts: DebtAccount[] = [
+      d('d_min', {
+        creditorName: '招行信用卡', debtType: 'credit_card',
+        currentAmountDueFen: 2000_00,
+        monthlyPaymentFen: 2000_00,
+        nextDueDate: '2026-08-20',
+        dueDay: 20,
+        repaymentMethod: 'minimum_payment' as any,
+        status: 'normal',
+      }),
+    ]
+
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+    const all = ledger.flatMap(d => d.events.filter(e => e.label.includes('招行信用卡')))
+    // 未设期数限制，90天内按月生成
+    expect(all.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('灵活还款(flexible)：未设月供则只排首期', () => {
+    const debts: DebtAccount[] = [
+      d('d_flex', {
+        creditorName: '私人借款', debtType: 'personal_borrowing',
+        currentAmountDueFen: 10_000_00,
+        nextDueDate: '2026-08-15',
+        repaymentMethod: 'flexible' as any,
+        status: 'normal',
+      }),
+    ]
+
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+    const all = ledger.flatMap(d => d.events.filter(e => e.label.includes('私人借款')))
+    // 未设月供，只有首期
+    expect(all.length).toBe(1)
+  })
+})

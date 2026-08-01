@@ -364,11 +364,29 @@ function expandDayEvents(
     const regularAmountFen = debt.monthlyPaymentFen ?? Math.round((debt.monthlyPayment || 0) * 100)
     const firstAmountFen = debt.currentAmountDueFen ?? debt.currentDueAmountFen ?? Math.round((debt.currentDueAmount || 0) * 100)
     const effectiveFirstFen = firstAmountFen > 0 ? firstAmountFen : regularAmountFen
-    if (effectiveFirstFen <= 0 && regularAmountFen <= 0) continue
 
     const isOverdue = debt.status === 'overdue'
     const termKnown = debt.termKnown === true
     const remaining = Number(debt.termRemaining)
+    const method = (debt as any).repaymentMethod || 'unknown'
+
+    // 一次性还本付息 / 先息后本：独立于月供逻辑
+    if (method === 'balloon' || method === 'interest_first') {
+      const maturityDate = debt.nextDueDate || ''
+      const balloonAmount = debt.outstandingPrincipalFen || effectiveFirstFen
+      if (maturityDate && date === maturityDate && balloonAmount > 0) {
+        events.push({
+          type: 'debt_payment', direction: 'out',
+          label: `${debt.creditorName || debt.platform || '债务'}(到期还本)`,
+          amountFen: balloonAmount,
+          annualRateBps: debt.annualRateBps ?? Math.round((debt.annualRate || 0) * 100),
+          debtId: debt.id,
+        })
+      }
+      continue // skip normal scheduling
+    }
+
+    if (effectiveFirstFen <= 0 && regularAmountFen <= 0) continue
 
     if (isOverdue) {
       // ── Overdue debt: catch-up + resume normal schedule ──
@@ -421,26 +439,7 @@ function expandDayEvents(
         }
       }
     } else {
-      // ── Non-overdue: schedule based on repayment method ──
-      const method = (debt as any).repaymentMethod || 'unknown'
-
-      // 一次性还本付息 / 先息后本：仅在到期日一次性支付本金
-      if (method === 'balloon' || method === 'interest_first') {
-        const maturityDate = debt.nextDueDate || ''
-        if (maturityDate && date === maturityDate) {
-          events.push({
-            type: 'debt_payment',
-            direction: 'out',
-            label: `${debt.creditorName || debt.platform || '债务'}(到期还本)`,
-            amountFen: debt.outstandingPrincipalFen || effectiveFirstFen,
-            annualRateBps: debt.annualRateBps ?? Math.round((debt.annualRate || 0) * 100),
-            debtId: debt.id,
-          })
-        }
-        continue
-      }
-
-      // 分期/最低还款/灵活/未知：按正常月供排程
+      // ── Non-overdue: normal monthly schedule ──
       if (termKnown && remaining <= 0) continue
 
       const firstDueDate = getFirstFutureDueDate(debt, startDate)
