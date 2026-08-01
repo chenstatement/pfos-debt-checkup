@@ -40,10 +40,14 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
     <div className="min-h-screen safe-bottom" style={{ background: '#F2F2F7' }}>
       <div className="max-w-md mx-auto px-5 pt-8 pb-8 space-y-6">
 
-        {/* Top nav */}
-        <div className="flex justify-between items-center">
-          <button onClick={() => navigate('/')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>首页</button>
-          <button onClick={() => navigate('/wizard')} className="text-[13px] px-4 py-2 rounded-full" style={{ color: '#007AFF', background: 'rgba(0,122,255,0.06)' }}>修改数据</button>
+        {/* Top nav — frozen */}
+        <div className="sticky top-0 z-10 safe-top -mx-5 px-5 py-3"
+             style={{ background: 'rgba(242,242,247,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="flex justify-between items-center">
+            <button onClick={() => navigate('/')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>首页</button>
+            <h1 className="text-[16px] font-semibold text-[#1C1C1E]">我的债务报告</h1>
+            <button onClick={() => navigate('/wizard')} className="text-[13px] px-3 py-1.5 rounded-full" style={{ color: '#007AFF', background: 'rgba(0,122,255,0.06)' }}>修改数据</button>
+          </div>
         </div>
 
         {/* Hero */}
