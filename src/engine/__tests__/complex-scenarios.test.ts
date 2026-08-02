@@ -290,13 +290,16 @@ describe('还款方式测试', () => {
     expect(novEv?.length || 0).toBe(0)
   })
 
-  it('先息后本(interest_first)：到期日还本，无月供', () => {
+  it('先息后本(interest_first)：月息按期排程，末期末金', () => {
     const debts: DebtAccount[] = [
       d('d_interest', {
         creditorName: '抵押经营贷', debtType: 'secured_loan',
-        outstandingPrincipalFen: 1_000_000_00,
+        outstandingPrincipalFen: 100_000_00,     // 10万本金
         currentAmountDueFen: 0,
-        nextDueDate: '2026-09-01',
+        monthlyPaymentFen: 1000_00,               // 月息1000
+        nextDueDate: '2026-08-15',
+        dueDay: 15,
+        termKnown: true, termRemaining: 3,        // 3期: 8/15, 9/15, 10/15
         repaymentMethod: 'interest_first' as any,
         status: 'normal',
       }),
@@ -305,14 +308,26 @@ describe('还款方式测试', () => {
     const r = run(debts, [])
     const ledger = r.nowcast.dailyLedger
 
-    const sep1 = ledger.find(d => d.date === '2026-09-01')
-    const ev = sep1!.events.find(e => e.label.includes('抵押经营贷'))
-    expect(ev).toBeDefined()
-    expect(ev!.amountFen).toBe(1_000_000_00)
+    // 8月15日: 月息1000 (第1期)
+    const aug15 = ledger.find(d => d.date === '2026-08-15')
+    const augInterest = aug15?.events.find(e => e.label.includes('抵押经营贷') && e.label.includes('月息'))
+    expect(augInterest).toBeDefined()
+    expect(augInterest!.amountFen).toBe(1000_00)
+    const augPrincipal = aug15?.events.find(e => e.label.includes('抵押经营贷') && e.label.includes('还本'))
+    expect(augPrincipal).toBeUndefined()
 
-    // 之前之后均无
-    const allPayments = ledger.flatMap(d => d.events.filter(e => e.label.includes('抵押经营贷')))
-    expect(allPayments.length).toBe(1)
+    // 10月15日: 月息1000 + 还本100000 (第3期=末，在90天窗内)
+    const oct15 = ledger.find(d => d.date === '2026-10-15')
+    expect(oct15).toBeDefined()
+    const octEvents = oct15!.events.filter(e => e.label.includes('抵押经营贷'))
+    expect(octEvents.length).toBe(2)
+
+    // 总共应有3次月息+1次还本
+    const all = ledger.flatMap(d => d.events.filter(e => e.label.includes('抵押经营贷')))
+    const interestCount = all.filter(e => e.label.includes('月息')).length
+    const principalCount = all.filter(e => e.label.includes('还本')).length
+    expect(interestCount).toBe(3)
+    expect(principalCount).toBe(1)
   })
 
   it('分期等额(equal_installment)：月供按期排程，5期可见3期', () => {
@@ -356,6 +371,61 @@ describe('还款方式测试', () => {
     const all = ledger.flatMap(d => d.events.filter(e => e.label.includes('招行信用卡')))
     // 未设期数限制，90天内按月生成
     expect(all.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('一次性还本付息+利率：到期还本+利息', () => {
+    const debts: DebtAccount[] = [
+      d('d_balloon_int', {
+        creditorName: '经营贷(含息)', debtType: 'bank_consumer_loan',
+        outstandingPrincipalFen: 500_000_00,  // 50万本金
+        currentAmountDueFen: 0,
+        nextDueDate: '2026-10-15',            // 到期日
+        annualRateBps: 1200,                   // 年化12%
+        termKnown: true, termRemaining: 12,    // 12个月期限
+        repaymentMethod: 'balloon' as any,
+        status: 'normal',
+      }),
+    ]
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+    const oct15 = ledger.find(d => d.date === '2026-10-15')
+    const ev = oct15!.events.find(e => e.label.includes('经营贷'))
+    expect(ev).toBeDefined()
+    // 本金50万 + 利息(50万×12%×1年=6万) = 56万
+    expect(ev!.amountFen).toBe(560_000_00)
+  })
+
+  it('先息后本+利率自动算月息：每月1日付息，末期末金', () => {
+    const debts: DebtAccount[] = [
+      d('d_int_first', {
+        creditorName: '抵押贷(先息)', debtType: 'secured_loan',
+        outstandingPrincipalFen: 1_000_000_00,
+        currentAmountDueFen: 0,
+        monthlyPaymentFen: 0,                   // 未设月息→自动算
+        nextDueDate: '2026-08-01',
+        dueDay: 1,
+        annualRateBps: 600,                     // 年化6%→月息0.5%=5000
+        termKnown: true, termRemaining: 3,
+        repaymentMethod: 'interest_first' as any,
+        status: 'normal',
+      }),
+    ]
+    const r = run(debts, [])
+    const ledger = r.nowcast.dailyLedger
+
+    // 月息自动计算: 100万×6%/12 = 5000
+    const aug1 = ledger.find(d => d.date === '2026-08-01')
+    const augInt = aug1?.events.find(e => e.label.includes('抵押贷') && e.label.includes('月息'))
+    expect(augInt).toBeDefined()
+    expect(augInt!.amountFen).toBe(5000_00)
+
+    // 10月1日: 月息+还本 (第3期=末)
+    const oct1 = ledger.find(d => d.date === '2026-10-01')
+    const evts = oct1?.events.filter(e => e.label.includes('抵押贷')) || []
+    expect(evts.length).toBe(2) // 月息+还本
+    const principal = evts.find(e => e.label.includes('还本'))
+    expect(principal).toBeDefined()
+    expect(principal!.amountFen).toBe(1_000_000_00)
   })
 
   it('灵活还款(flexible)：未设月供则只排首期', () => {

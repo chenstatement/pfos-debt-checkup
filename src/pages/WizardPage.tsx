@@ -84,7 +84,10 @@ export default function WizardPage() {
     const wExpIds = new Set(expenses.map((e: any) => e.id)); data.expenses.forEach((e: any) => { if (!wExpIds.has(e.id)) dExp(e.id) })
     expenses.forEach((e: any) => { if (!data.expenses.find((de: any) => de.id === e.id)) sExp({ id: e.id, category: 'other', label: e.label, amountFen: yuanToFen(e.amountYuan), dayOfMonth: e.dayOfMonth, recurring: e.recurring, oneTimeDate: e.oneTimeDate, essential: e.essential, deferrable: e.deferrable }) })
     const wDebtIds = new Set(debts.map((d: any) => d.id)); data.debts.forEach((d: any) => { if (!d.deletedAt && !wDebtIds.has(d.id)) archiveDebt(d.id) })
-    debts.forEach((d: any) => { if (!data.debts.find((dd: any) => dd.id === d.id)) sDebt(d) })
+    debts.forEach((d: any) => {
+      if (data.debts.find((dd: any) => dd.id === d.id)) archiveDebt(d.id)
+      sDebt(d)
+    })
     data.assets.forEach((a: any) => dAst(a.id))
     assets.forEach((a: any) => sAst({ id: a.id, type: a.type, label: a.label, amountFen: yuanToFen(a.amountYuan), liquid: a.availabilityKnown && !!a.availableDate && a.availableDate <= snap.asOfDate, ownership: a.ownership, realizableAmountFen: yuanToFen(a.realizableAmountYuan || a.amountYuan), availableDate: a.availabilityKnown ? a.availableDate : '', availabilityKnown: a.availabilityKnown }))
     localStorage.removeItem(DRAFT_KEY); nav('/dashboard')
@@ -156,9 +159,10 @@ export default function WizardPage() {
                 {debts.map((d: any) => (
                   <div key={d.id} className="apple-card py-3 px-4">
                     <div className="flex justify-between items-start mb-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[15px] font-semibold text-[#1C1C1E]">{d.creditorName}</span>
                         <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,0,0,0.04)', color: '#8E8E93' }}>{DEBT_TYPE_LABELS[d.debtType]}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(0,122,255,0.06)', color: '#007AFF' }}>{{'balloon':'到期还本','interest_first':'先息后本','equal_installment':'分期','minimum_payment':'最低还款','flexible':'灵活','unknown':'未知'}[d.repaymentMethod] || '未知'}</span>
                         {d.status === 'overdue' && <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(255,59,48,0.08)', color: '#FF3B30' }}>逾期</span>}
                       </div>
                       <button onClick={() => setDebts((p: any) => p.filter((x: any) => x.id !== d.id))} className="text-[#8E8E93] text-sm shrink-0 ml-2">删除</button>

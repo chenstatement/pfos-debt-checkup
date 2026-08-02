@@ -370,20 +370,65 @@ function expandDayEvents(
     const remaining = Number(debt.termRemaining)
     const method = (debt as any).repaymentMethod || 'unknown'
 
-    // 一次性还本付息 / 先息后本：独立于月供逻辑
-    if (method === 'balloon' || method === 'interest_first') {
+    // 一次性还本付息：到期日一笔还清（本金+利息）
+    if (method === 'balloon') {
       const maturityDate = debt.nextDueDate || ''
-      const balloonAmount = debt.outstandingPrincipalFen || effectiveFirstFen
-      if (maturityDate && date === maturityDate && balloonAmount > 0) {
+      if (maturityDate && date === maturityDate) {
+        const rateBps = debt.annualRateBps ?? Math.round((debt.annualRate || 0) * 100)
+        const principal = debt.outstandingPrincipalFen || effectiveFirstFen
+        let totalPay = principal
+        if (rateBps > 0 && termKnown && remaining > 0) {
+          totalPay = principal + Math.round(principal * (rateBps / 10000) * (remaining / 12))
+        }
+        if (totalPay > 0) {
+          events.push({
+            type: 'debt_payment', direction: 'out',
+            label: `${debt.creditorName || debt.platform || '债务'}(到期还本)`,
+            amountFen: totalPay,
+            annualRateBps: rateBps,
+            debtId: debt.id,
+          })
+        }
+      }
+      continue
+    }
+
+    // 先息后本：每月利息按正常月供排程，末期加本金
+    if (method === 'interest_first') {
+      const rateBps = debt.annualRateBps ?? Math.round((debt.annualRate || 0) * 100)
+      const principal = debt.outstandingPrincipalFen || effectiveFirstFen
+      const interestFen = regularAmountFen > 0 ? regularAmountFen : (rateBps > 0 ? Math.round(principal * (rateBps / 10000) / 12) : effectiveFirstFen)
+      if (interestFen <= 0) continue
+
+      if (termKnown && remaining <= 0) continue
+      const firstDueDate = getFirstFutureDueDate(debt, startDate)
+      if (!firstDueDate) continue
+      const idx = paymentIndexForDate(firstDueDate, date, debt.dueDay ?? 20)
+      if (idx < 0) continue
+      if (termKnown && idx >= remaining) continue
+      const sched = addMonthsClamped(firstDueDate, idx, debt.dueDay ?? 20)
+      if (sched === date) {
+        // 每月利息
         events.push({
           type: 'debt_payment', direction: 'out',
-          label: `${debt.creditorName || debt.platform || '债务'}(到期还本)`,
-          amountFen: balloonAmount,
-          annualRateBps: debt.annualRateBps ?? Math.round((debt.annualRate || 0) * 100),
+          label: `${debt.creditorName || debt.platform || '债务'}(月息)`,
+          amountFen: interestFen,
+          annualRateBps: rateBps,
           debtId: debt.id,
         })
+        // 最后一期：同时还本金
+        const isLast = termKnown && idx === remaining - 1
+        if (isLast && principal > 0) {
+          events.push({
+            type: 'debt_payment', direction: 'out',
+            label: `${debt.creditorName || debt.platform || '债务'}(还本)`,
+            amountFen: principal,
+            annualRateBps: rateBps,
+            debtId: debt.id,
+          })
+        }
       }
-      continue // skip normal scheduling
+      continue
     }
 
     if (effectiveFirstFen <= 0 && regularAmountFen <= 0) continue

@@ -66,6 +66,7 @@ export default function DebtListPage() {
                 <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,0,0,0.04)', color: '#8E8E93' }}>
                   {DEBT_TYPE_LABELS[debt.debtType] || debt.debtType}
                 </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(0,122,255,0.06)', color: '#007AFF' }}>{(({balloon:'到期还本',interest_first:'先息后本',equal_installment:'分期',minimum_payment:'最低还款',flexible:'灵活',unknown:'未知'} as any)[debt.repaymentMethod]) || '未知'}</span>
                 {debt.status === 'overdue' && (
                   <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(255,59,48,0.08)', color: '#FF3B30' }}>逾期</span>
                 )}
