@@ -403,10 +403,11 @@ function expandDayEvents(
       if (termKnown && remaining <= 0) continue
       const firstDueDate = getFirstFutureDueDate(debt, startDate)
       if (!firstDueDate) continue
-      const idx = paymentIndexForDate(firstDueDate, date, debt.dueDay ?? 20)
+      const effectiveDueDay = debt.dueDay ?? Number(firstDueDate.split('-')[2])
+      const idx = paymentIndexForDate(firstDueDate, date, effectiveDueDay)
       if (idx < 0) continue
       if (termKnown && idx >= remaining) continue
-      const sched = addMonthsClamped(firstDueDate, idx, debt.dueDay ?? 20)
+      const sched = addMonthsClamped(firstDueDate, idx, effectiveDueDay)
       if (sched === date) {
         // 每月利息
         events.push({
@@ -467,9 +468,10 @@ function expandDayEvents(
       if (date > catchUpDate && afterAmountFen > 0 && afterRemaining > 0) {
         const resumeDueDate = getFirstFutureDueDate({...debt, nextDueDate: '', status: 'normal'}, startDate)
         if (resumeDueDate) {
-          const idx = paymentIndexForDate(resumeDueDate, date, debt.dueDay ?? 20)
+          const effectiveDueDay2 = debt.dueDay ?? Number(resumeDueDate.split('-')[2])
+          const idx = paymentIndexForDate(resumeDueDate, date, effectiveDueDay2)
           if (idx > 0 && idx <= afterRemaining) {
-            const sched = addMonthsClamped(resumeDueDate, idx, debt.dueDay ?? 20)
+            const sched = addMonthsClamped(resumeDueDate, idx, effectiveDueDay2)
             if (sched === date) {
               events.push({
                 type: 'debt_payment',
@@ -490,11 +492,12 @@ function expandDayEvents(
       const firstDueDate = getFirstFutureDueDate(debt, startDate)
       if (!firstDueDate) continue
 
-      const paymentIndex = paymentIndexForDate(firstDueDate, date, debt.dueDay ?? 20)
+      const effectiveDueDay3 = debt.dueDay ?? Number(firstDueDate.split('-')[2])
+      const paymentIndex = paymentIndexForDate(firstDueDate, date, effectiveDueDay3)
       if (paymentIndex < 0) continue
       if (termKnown && paymentIndex >= remaining) continue
 
-      const scheduledDate = addMonthsClamped(firstDueDate, paymentIndex, debt.dueDay ?? 20)
+      const scheduledDate = addMonthsClamped(firstDueDate, paymentIndex, effectiveDueDay3)
       if (scheduledDate === date) {
         // paymentIndex 0 = first/current payment; >0 = future recurring payments
         // Only generate future payments if monthlyPaymentFen is explicitly set

@@ -240,13 +240,12 @@ export function generateActionPlan(
   nowcast: NowcastResult | null = null
 ): ActionItem[] {
   const actions: ActionItem[] = []
-  const now = new Date().toISOString()
 
   for (const template of ACTION_TEMPLATES) {
     if (template.condition(aggregates, priorityDebts, nowcast)) {
       const { title, detail } = template.generate(aggregates, priorityDebts, nowcast)
       actions.push({
-        id: `action_${template.id}_${Date.now()}`,
+        id: `action_${template.id}`,
         userId: '',
         actionCode: 'VERIFY_DATA', // default, will be overridden by risk engine actions
         title,
@@ -257,8 +256,8 @@ export function generateActionPlan(
           : 'P3',
         status: 'todo',
         steps: [],
-        createdAt: now,
-        updatedAt: now,
+        createdAt: '',
+        updatedAt: '',
       })
     }
   }

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PFOS 体检报告 · 页面预览</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    *{box-sizing:border-box} body{margin:0;background:#dfe2e8;color:var(--color-text);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
+    button{font:inherit} button,.clickable{transition:all .15s ease;cursor:pointer} button:active,.clickable:active{transform:scale(.985)}
+    #variant-nav{position:fixed;z-index:9998;top:0;left:0;right:0;height:52px;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-bottom:1px solid #d7d8dc;display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 12px}
+    .variant-tab{border:0;border-radius:999px;background:#eef0f4;color:#555;padding:8px 14px;font-size:13px;font-weight:600}.variant-tab:hover{background:#e2e6ec}.variant-tab.active{background:#1c1c1e;color:#fff}
+    #preview-shell{width:420px;max-width:100%;margin:76px auto 40px;background:var(--color-bg);box-shadow:var(--shadow-lg);min-height:100vh;transition:width .2s ease;overflow:hidden}
+    .variant{display:none}.variant.active{display:block}.page{min-height:100vh;background:var(--color-bg);padding-bottom:26px}
+    .topbar{position:sticky;top:0;z-index:10;background:rgba(242,242,247,.88);backdrop-filter:blur(20px);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 18px 12px;border-bottom:1px solid rgba(0,0,0,.04)}
+    .topbar button{border:0;background:none;color:var(--color-primary);font-size:14px}.topbar button:last-child{text-align:right}.topbar-title{font-size:16px;font-weight:700;text-align:center}
+    .content{padding:18px}.report-meta{text-align:center;font-size:11px;color:#8e8e93;margin:0 0 16px}.section{margin-bottom:20px}.section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}.section-no{font-size:11px;font-weight:800;color:var(--color-primary);letter-spacing:.08em}.section-title{font-size:17px;font-weight:750;letter-spacing:-.02em}
+    .paper{background:#fff;border-radius:18px;box-shadow:var(--shadow-sm);overflow:hidden}.paper-section{padding:18px;border-bottom:1px solid var(--color-border)}.paper-section:last-child{border-bottom:0}
+    .risk-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.risk-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#fff3e8;color:#b85a00;font-size:12px;font-weight:700}.risk-dot{width:7px;height:7px;border-radius:50%;background:var(--color-accent)}
+    .summary{font-size:15px;line-height:1.65;font-weight:650;letter-spacing:-.01em;margin:0}.muted{color:var(--color-text-muted);font-size:12px;line-height:1.55}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.metric{background:#f6f6f8;border-radius:12px;padding:11px 8px;text-align:center}.metric-label{font-size:10px;color:#8e8e93;margin-bottom:5px}.metric-value{font-size:14px;font-weight:750}.danger{color:var(--color-danger)}.warning{color:#c66b00}.success{color:#188a3d}
+    .amount.masked{filter:blur(5px);user-select:none}.priority-callout{margin-top:12px;padding:12px;border-radius:12px;background:#f2f7ff;border-left:4px solid var(--color-primary)}.eyebrow{font-size:10px;font-weight:800;color:var(--color-primary);letter-spacing:.06em;margin-bottom:5px}.callout-title{font-size:14px;font-weight:750}.callout-text{font-size:12px;color:var(--color-text-muted);line-height:1.55;margin-top:4px}
+    .actions{display:grid;gap:9px}.action{display:grid;grid-template-columns:42px 1fr 28px;gap:10px;align-items:start;padding:12px;border:1px solid var(--color-border);border-radius:13px;background:#fff}.when{font-size:11px;font-weight:800;color:#fff;background:var(--color-primary);border-radius:8px;padding:5px 4px;text-align:center}.when.week{background:#5856d6}.when.month{background:#5b6471}.action-title{font-size:13px;font-weight:750;margin-bottom:3px}.action-copy{font-size:11px;line-height:1.5;color:var(--color-text-muted)}.check{width:24px;height:24px;border-radius:50%;border:1.5px solid #c7c7cc;background:#fff;color:#fff}.check.done{background:var(--color-success);border-color:var(--color-success)}
+    .link-row{width:100%;border:0;background:none;color:var(--color-primary);font-size:12px;font-weight:650;padding:12px 0 0;text-align:center}
+    .timeline{position:relative;margin:8px 5px 4px 8px;padding-left:22px}.timeline:before{content:"";position:absolute;left:6px;top:7px;bottom:7px;width:2px;background:#d9dce3}.event{position:relative;padding:0 0 15px}.event:last-child{padding-bottom:0}.event:before{content:"";position:absolute;left:-21px;top:4px;width:10px;height:10px;border-radius:50%;background:#fff;border:3px solid #8e8e93}.event.critical:before{border-color:var(--color-danger);box-shadow:0 0 0 4px rgba(255,59,48,.1)}.event.income:before{border-color:var(--color-success)}.event-date{font-size:11px;font-weight:750;color:#6e6e73}.event-title{font-size:13px;font-weight:700;margin-top:2px}.event-note{font-size:11px;color:#8e8e93;margin-top:2px}
+    .debt-list{display:grid;gap:8px}.debt{display:grid;grid-template-columns:28px 1fr auto;gap:9px;padding:12px;border-radius:13px;background:#f7f7f9;align-items:start}.rank{width:24px;height:24px;border-radius:50%;background:#1c1c1e;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}.debt-name{font-size:13px;font-weight:750}.debt-reason,.debt-next{font-size:11px;color:#6e6e73;line-height:1.45;margin-top:3px}.debt-next{color:var(--color-primary);font-weight:650}.chev{color:#c7c7cc}
+    .risk-list{display:grid;gap:8px}.risk-item{display:grid;grid-template-columns:8px 1fr;gap:10px}.risk-bar{border-radius:6px;background:var(--color-accent)}.risk-item:first-child .risk-bar{background:var(--color-danger)}.risk-name{font-size:13px;font-weight:720}.risk-copy{font-size:11px;color:#6e6e73;line-height:1.5;margin-top:2px}
+    .ledger{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--color-border);border:1px solid var(--color-border);border-radius:13px;overflow:hidden;margin-top:12px}.ledger-item{background:#fff;padding:11px}.ledger-label{font-size:10px;color:#8e8e93}.ledger-value{font-size:13px;font-weight:720;margin-top:3px}
+    .quality-top{display:flex;align-items:center;justify-content:space-between}.quality-score{font-size:22px;font-weight:800;color:var(--color-primary)}.progress{height:7px;background:#e9e9ed;border-radius:99px;overflow:hidden;margin:9px 0 11px}.progress span{display:block;width:82%;height:100%;background:var(--color-primary);border-radius:99px}.missing{display:grid;gap:7px}.missing div{font-size:11px;color:#6e6e73;padding-left:16px;position:relative}.missing div:before{content:"○";position:absolute;left:0;color:#8e8e93}
+    .notice{font-size:10px;color:#8e8e93;line-height:1.55;text-align:center;padding:6px 8px 16px}.footer{text-align:center;padding:6px 18px 24px}.settings{border:0;background:none;color:#8e8e93;font-size:13px;margin-bottom:5px}.cutoff{font-size:11px;color:#c7c7cc}.global-footer{border-top:1px solid #e5e5ea;margin:0 18px;padding:16px 8px 8px;text-align:center;font-size:9px;line-height:1.5;color:#a0a0a5}.contact{margin-top:8px;color:#8e8e93;font-size:10px}
+    .cards .card{background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);padding:16px;margin-bottom:12px}.hero-card{background:linear-gradient(145deg,#1c1c1e,#343438)!important;color:#fff}.hero-card .muted{color:#c7c7cc}.hero-kicker{font-size:11px;color:#ffcf83;font-weight:700}.hero-title{font-size:21px;line-height:1.25;font-weight:800;margin:7px 0 8px}.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.hero-stat{background:rgba(255,255,255,.09);border-radius:11px;padding:10px}.hero-stat label{font-size:9px;color:#b9b9be;display:block}.hero-stat b{font-size:14px;margin-top:4px;display:block}.urgent-card{border:1.5px solid rgba(255,59,48,.24);background:#fff8f7!important}.urgent-tag{font-size:10px;color:var(--color-danger);font-weight:800}.big-action{font-size:17px;font-weight:800;margin:5px 0}.action-steps{margin:9px 0 0;padding:0;list-style:none}.action-steps li{font-size:11px;color:#6e6e73;margin:5px 0;padding-left:18px;position:relative}.action-steps li:before{content:"✓";position:absolute;left:0;color:var(--color-success);font-weight:800}
+    .compact-section{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.compact-title{font-size:15px;font-weight:760}.compact-no{font-size:10px;color:var(--color-primary);font-weight:800}.mini-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mini-action{background:#f7f7f9;border-radius:11px;padding:10px}.mini-action b{font-size:12px}.mini-action p{font-size:10px;line-height:1.45;color:#777;margin:4px 0 0}
+    .sparkline{height:90px;margin:8px 0;position:relative;background:linear-gradient(#fff,#fafafa);border-radius:10px;overflow:hidden}.sparkline svg{width:100%;height:100%}.legend{display:flex;justify-content:space-between;font-size:10px;color:#8e8e93}.detail-panel{display:none;margin-top:10px;padding:10px;border-radius:10px;background:#f7f7f9;font-size:11px;line-height:1.55;color:#6e6e73}.detail-panel.open{display:block}
+    #sketch-tools{position:fixed;bottom:12px;right:12px;z-index:9999;font-family:system-ui;font-size:12px;background:rgba(0,0,0,.78);color:white;padding:8px 10px;border-radius:8px;opacity:.45;transition:opacity .2s;display:flex;gap:5px;align-items:center}#sketch-tools:hover{opacity:1}#sketch-tools button,#sketch-tools select{font-size:11px;border:0;border-radius:4px;padding:4px 6px}.annotate *:hover{outline:1px dashed #ff2d55}
+    #toast{position:fixed;z-index:10001;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;background:#1c1c1e;color:#fff;padding:10px 16px;border-radius:999px;font-size:12px;pointer-events:none;transition:all .2s}#toast.show{opacity:1;transform:translate(-50%,0)}
+    body.capture{background:var(--color-bg)}body.capture #variant-nav,body.capture #sketch-tools{display:none!important}body.capture #preview-shell{margin:0 auto;box-shadow:none}body.capture .topbar{position:relative}
+    @media(max-width:520px){#variant-nav{justify-content:flex-start;overflow:auto}#preview-shell{margin-top:64px;margin-bottom:0;box-shadow:none}.content{padding:14px}.metrics{gap:6px}.metric-value{font-size:12px}#sketch-tools{display:none}}
+  </style>
+</head>
+<body>
+  <div id="variant-nav">
+    <button class="variant-tab active" data-variant="a">A：结论优先</button>
+    <button class="variant-tab" data-variant="b">B：行动优先</button>
+  </div>
+  <main id="preview-shell">
+    <section id="variant-a" class="variant active">
+      <div class="page">
+        <header class="topbar"><button onclick="toast('返回首页')">首页</button><div class="topbar-title">PFOS 体检报告</div><button onclick="toast('进入数据修改')">修改数据</button></header>
+        <div class="content">
+          <p class="report-meta">示例数据 · 截至 2026-08-04　已分析 5 笔债务　数据可信度 82%</p>
+          <div class="paper">
+            <section class="paper-section">
+              <div class="section-head"><span class="section-no">01</span><span class="section-title">你的当前结论</span></div>
+              <div class="risk-row"><span class="risk-pill"><span class="risk-dot"></span>风险等级：高风险</span><button class="link-row" style="width:auto;padding:0" onclick="toggleAmounts()">显示金额</button></div>
+              <p class="summary">未来 90 天存在资金缺口，压力集中在 8 月中下旬。当前应先稳住生活资金，并处理已逾期且近期到期的债务。</p>
+              <div class="metrics">
+                <div class="metric"><div class="metric-label">首次可能缺口</div><div class="metric-value warning">8月18日</div></div>
+                <div class="metric"><div class="metric-label">至少缺少</div><div class="metric-value danger amount masked">¥4,280</div></div>
+                <div class="metric"><div class="metric-label">月度结余</div><div class="metric-value danger amount masked">-¥2,350</div></div>
+              </div>
+              <div class="priority-callout clickable" onclick="toast('查看建设银行信用卡详情')"><div class="eyebrow">当前最优先处理</div><div class="callout-title">建设银行信用卡</div><div class="callout-text">已逾期 6 天，且 7 天内仍有应还款。今天先核对账单和官方沟通渠道。</div></div>
+            </section>
+            <section class="paper-section">
+              <div class="section-head"><span class="section-no">02</span><span class="section-title">先做这三件事</span></div>
+              <div class="actions">
+                <div class="action"><span class="when">今天</span><div><div class="action-title">核对建行本期账单</div><div class="action-copy">确认剩余本金、本期应还和逾期费用，记录官方口径。</div></div><button class="check" aria-label="完成" onclick="completeAction(this)">✓</button></div>
+                <div class="action"><span class="when week">本周</span><div><div class="action-title">为 8 月 18 日缺口准备 ¥4,280</div><div class="action-copy">优先削减可延期支出，不动用基本生活保留资金。</div></div><button class="check" aria-label="完成" onclick="completeAction(this)">✓</button></div>
+                <div class="action"><span class="when month">本月</span><div><div class="action-title">形成稳定还款安排</div><div class="action-copy">按风险顺序处理，不以新增高成本债务填补缺口。</div></div><button class="check" aria-label="完成" onclick="completeAction(this)">✓</button></div>
+              </div>
+              <button class="link-row" onclick="toast('进入完整行动清单')">查看完整行动清单 →</button>
+            </section>
+            <section class="paper-section">
+              <div class="section-head"><span class="section-no">03</span><span class="section-title">未来90天资金变化</span></div>
+              <p class="muted">按当前已确认的数据，8 月 18 日首次转负；8 月 26 日余额最紧张。</p>
+              <div class="timeline">
+                <div class="event"><div class="event-date">今天 · 8月4日</div><div class="event-title">当前可用现金 <span class="amount masked">¥8,600</span></div></div>
+                <div class="event income"><div class="event-date">8月15日</div><div class="event-title">工资到账 <span class="success amount masked">+¥12,000</span></div></div>
+                <div class="event"><div class="event-date">8月16日</div><div class="event-title">两笔还款碰撞</div><div class="event-note">建行信用卡 + 消费贷，共应还 <span class="amount masked">¥10,480</span></div></div>
+                <div class="event critical"><div class="event-date danger">8月18日 · 首次缺口</div><div class="event-title danger">预计余额 <span class="amount masked">-¥4,280</span></div></div>
+                <div class="event critical"><div class="event-date">8月26日 · 最紧张日期</div><div class="event-title">预计余额 <span class="amount masked">-¥7,120</span></div></div>
+              </div>
+              <button class="link-row" onclick="toggleDetail(this,'daily-a')">展开每日收支与余额明细</button><div id="daily-a" class="detail-panel">明细沿用现有现金流页面：日期、事件、金额、当日余额及风险状态。这里只展示关键节点，避免报告重复。</div>
+              <button class="link-row" onclick="toggleDetail(this,'month-a')">展开三个月月度汇总</button><div id="month-a" class="detail-panel">8 月：-¥7,120　9 月：-¥3,860　10 月：+¥1,240（均为示例数据）</div>
+            </section>
+            <section class="paper-section">
+              <div class="section-head"><span class="section-no">04</span><span class="section-title">债务处理顺序</span></div>
+              <div class="debt-list">
+                <div class="debt clickable" onclick="toast('查看建行风险详情')"><span class="rank">1</span><div><div class="debt-name">建设银行信用卡</div><div class="debt-reason">已逾期、7天内到期、现金不足</div><div class="debt-next">下一步：核对账单并通过官方渠道沟通</div></div><span class="chev">›</span></div>
+                <div class="debt clickable" onclick="toast('查看消费贷风险详情')"><span class="rank">2</span><div><div class="debt-name">某消费贷</div><div class="debt-reason">与信用卡形成还款碰撞</div><div class="debt-next">下一步：确认扣款日和账户余额</div></div><span class="chev">›</span></div>
+                <div class="debt clickable" onclick="toast('查看网贷风险详情')"><span class="rank">3</span><div><div class="debt-name">某网贷</div><div class="debt-reason">成本较高，但本期尚可覆盖</div><div class="debt-next">下一步：停止新增借款并保留还款记录</div></div><span class="chev">›</span></div>
+              </div>
+              <button class="link-row" onclick="toast('进入风险优先级页面')">查看完整债务顺序 →</button>
+            </section>
+            <section class="paper-section">
+              <div class="section-head"><span class="section-no">05</span><span class="section-title">系统为什么这样判断</span></div>
+              <div class="risk-list">
+                <div class="risk-item"><span class="risk-bar"></span><div><div class="risk-name">已经发生逾期</div><div class="risk-copy">1 笔债务逾期 6 天，需要先核对金额与状态。</div></div></div>
+                <div class="risk-item"><span class="risk-bar"></span><div><div class="risk-name">还款日期集中</div><div class="risk-copy">8 月 16 日两笔还款同时发生，形成现金流碰撞。</div></div></div>
+                <div class="risk-item"><span class="risk-bar"></span><div><div class="risk-name">月度持续为负</div><div class="risk-copy">当前每月预计短缺 <span class="amount masked">¥2,350</span>，缺口可能延续。</div></div></div>
+              </div>
+              <div class="ledger">
+                <div class="ledger-item"><div class="ledger-label">月收入</div><div class="ledger-value amount masked">¥12,000</div></div><div class="ledger-item"><div class="ledger-label">基本生活支出</div><div class="ledger-value amount masked">¥5,200</div></div>
+                <div class="ledger-item"><div class="ledger-label">月债务还款</div><div class="ledger-value amount masked">¥9,150</div></div><div class="ledger-item"><div class="ledger-label">当前可用现金</div><div class="ledger-value amount masked">¥8,600</div></div>
+                <div class="ledger-item"><div class="ledger-label">总债务本金</div><div class="ledger-value amount masked">¥286,400</div></div><div class="ledger-item"><div class="ledger-label">债务收入比</div><div class="ledger-value danger">76%</div></div>
+              </div>
+            </section>
+            <section class="paper-section">
+              <div class="section-head"><span class="section-no">06</span><span class="section-title">数据可信度与待确认项</span></div>
+              <div class="quality-top"><div><div class="callout-title">本次报告可信度</div><div class="muted">标准，可用于初步决策</div></div><div class="quality-score">82%</div></div>
+              <div class="progress"><span></span></div>
+              <div class="missing"><div>确认某消费贷剩余期数</div><div>补充网贷的实际年化成本</div><div>确认 8 月 26 日一次性支出是否可延期</div></div>
+              <p class="muted" style="margin:12px 0 0">补全后，债务第 2、3 名的处理顺序和首次缺口金额可能变化。</p>
+              <button class="link-row" onclick="toast('继续补全数据')">继续补全并更新报告 →</button>
+            </section>
+          </div>
+          <p class="notice">本报告仅基于已确认的数据提供信息分析和决策辅助，不承诺协商、征信修复、债务减免或法律结果。<br>生成时间：2026-08-04 15:30</p>
+        </div>
+        <div class="footer"><button class="settings" onclick="toast('进入设置')">设置</button><div class="cutoff">数据截止 2026-08-04 · PFOS 债务体检</div></div>
+        <div class="global-footer">免责声明：PFOS 仅为个人财务信息分析与决策辅助工具，不构成法律意见、财务审计或信贷推荐。<div class="contact">联系方式</div></div>
+      </div>
+    </section>
+
+    <section id="variant-b" class="variant">
+      <div class="page cards">
+        <header class="topbar"><button onclick="toast('返回首页')">首页</button><div class="topbar-title">PFOS 体检报告</div><button onclick="toast('进入数据修改')">修改数据</button></header>
+        <div class="content">
+          <p class="report-meta">示例数据 · 截至 2026-08-04　5 笔债务　可信度 82%</p>
+          <section class="card hero-card">
+            <div class="hero-kicker">01 · 你的当前结论　高风险</div><div class="hero-title">8月18日前，先补上<br><span class="amount masked">¥4,280</span> 的资金缺口</div>
+            <p class="muted">压力集中在 8 月中下旬。先稳住生活资金，再处理已逾期债务。</p>
+            <div class="hero-stats"><div class="hero-stat"><label>月度结余</label><b class="amount masked">-¥2,350</b></div><div class="hero-stat"><label>最优先债务</label><b>建行信用卡</b></div></div>
+            <button class="link-row" style="color:#fff" onclick="toggleAmounts()">显示／隐藏金额</button>
+          </section>
+          <section class="card urgent-card">
+            <div class="urgent-tag">02 · 今天先做</div><div class="big-action">核对建行本期账单</div><p class="muted">确认剩余本金、本期应还和逾期费用，并记录官方沟通结果。</p>
+            <ul class="action-steps"><li>准备账单与还款记录</li><li>只使用官方渠道核实</li><li>记录金额、日期和书面口径</li></ul>
+            <button class="link-row" onclick="toast('标记今日行动完成')">完成后打勾 ✓</button>
+          </section>
+          <section class="card">
+            <div class="compact-section"><div><span class="compact-no">02</span><div class="compact-title">接下来两步</div></div><button class="link-row" style="width:auto;padding:0" onclick="toast('进入完整行动清单')">全部行动 ›</button></div>
+            <div class="mini-actions"><div class="mini-action"><b>本周</b><p>为 8 月 18 日缺口准备 <span class="amount masked">¥4,280</span></p></div><div class="mini-action"><b>本月</b><p>按风险顺序形成稳定还款安排</p></div></div>
+          </section>
+          <section class="card">
+            <div class="compact-section"><div><span class="compact-no">03</span><div class="compact-title">未来90天资金变化</div></div><button class="link-row" style="width:auto;padding:0" onclick="toast('进入现金流页面')">明细 ›</button></div>
+            <div class="sparkline"><svg viewBox="0 0 330 90" preserveAspectRatio="none"><path d="M0 56 L44 48 L88 52 L132 18 L176 41 L220 66 L264 76 L330 60" fill="none" stroke="#007aff" stroke-width="3"/><path d="M0 60 L330 60" stroke="#ff3b30" stroke-width="1" stroke-dasharray="4 4"/><circle cx="220" cy="66" r="5" fill="#ff3b30"/><circle cx="264" cy="76" r="5" fill="#ff3b30"/></svg></div>
+            <div class="legend"><span>今天</span><span class="danger">8月18日首次缺口</span><span>90天</span></div>
+            <div class="metrics"><div class="metric"><div class="metric-label">还款碰撞</div><div class="metric-value">8月16日</div></div><div class="metric"><div class="metric-label">首次缺口</div><div class="metric-value danger">8月18日</div></div><div class="metric"><div class="metric-label">最紧张</div><div class="metric-value danger">8月26日</div></div></div>
+          </section>
+          <section class="card">
+            <div class="compact-section"><div><span class="compact-no">04</span><div class="compact-title">债务处理顺序</div></div><button class="link-row" style="width:auto;padding:0" onclick="toast('进入风险页面')">全部 ›</button></div>
+            <div class="debt-list"><div class="debt"><span class="rank">1</span><div><div class="debt-name">建设银行信用卡</div><div class="debt-reason">已逾期 · 7天内到期</div></div><span class="chev">›</span></div><div class="debt"><span class="rank">2</span><div><div class="debt-name">某消费贷</div><div class="debt-reason">还款碰撞 · 现金不足</div></div><span class="chev">›</span></div><div class="debt"><span class="rank">3</span><div><div class="debt-name">某网贷</div><div class="debt-reason">成本较高 · 本期可覆盖</div></div><span class="chev">›</span></div></div>
+          </section>
+          <section class="card">
+            <div class="compact-section"><div><span class="compact-no">05</span><div class="compact-title">系统为什么这样判断</div></div></div>
+            <div class="risk-list"><div class="risk-item"><span class="risk-bar"></span><div><div class="risk-name">1 笔债务已经逾期</div><div class="risk-copy">最长逾期 6 天</div></div></div><div class="risk-item"><span class="risk-bar"></span><div><div class="risk-name">两笔还款日期集中</div><div class="risk-copy">8 月 16 日共应还 <span class="amount masked">¥10,480</span></div></div></div><div class="risk-item"><span class="risk-bar"></span><div><div class="risk-name">月度结余为负</div><div class="risk-copy">当前每月短缺 <span class="amount masked">¥2,350</span></div></div></div></div>
+            <button class="link-row" onclick="toggleDetail(this,'ledger-b')">展开财务底账</button><div id="ledger-b" class="detail-panel">月收入 ¥12,000　基本生活支出 ¥5,200　月债务还款 ¥9,150　当前现金 ¥8,600　债务收入比 76%</div>
+          </section>
+          <section class="card">
+            <div class="compact-section"><div><span class="compact-no">06</span><div class="compact-title">数据可信度与待确认项</div></div><div class="quality-score">82%</div></div><div class="progress"><span></span></div>
+            <p class="muted">仍需确认消费贷剩余期数、网贷实际年化成本和一笔可延期支出。补全后，债务排序和缺口金额可能变化。</p><button class="link-row" onclick="toast('继续补全数据')">继续补全并更新报告 →</button>
+          </section>
+          <p class="notice">本报告仅基于已确认的数据提供信息分析和决策辅助，不承诺协商、征信修复、债务减免或法律结果。<br>生成时间：2026-08-04 15:30</p>
+        </div>
+        <div class="footer"><button class="settings" onclick="toast('进入设置')">设置</button><div class="cutoff">数据截止 2026-08-04 · PFOS 债务体检</div></div>
+        <div class="global-footer">免责声明：PFOS 仅为个人财务信息分析与决策辅助工具，不构成法律意见、财务审计或信贷推荐。<div class="contact">联系方式</div></div>
+      </div>
+    </section>
+  </main>
+  <div id="sketch-tools" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.45'"><select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'"><option value="default">Default</option></select><button onclick="viewport(375)">Phone</button><button onclick="viewport(768)">Tablet</button><button onclick="viewport(1100)">Desktop</button><button onclick="document.body.classList.toggle('annotate')">标注</button></div>
+  <div id="toast"></div>
+  <script>
+    const captureVariant=new URLSearchParams(location.search).get('capture');if(captureVariant){document.body.classList.add('capture');document.querySelectorAll('.variant').forEach(v=>v.classList.remove('active'));document.getElementById('variant-'+captureVariant)?.classList.add('active')}
+    document.querySelectorAll('.variant-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.variant-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.variant').forEach(v=>v.classList.remove('active'));tab.classList.add('active');document.getElementById('variant-'+tab.dataset.variant).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}));
+    function toggleAmounts(){document.querySelectorAll('.amount').forEach(el=>el.classList.toggle('masked'));toast('金额显示状态已切换')}
+    function completeAction(btn){btn.classList.toggle('done');toast(btn.classList.contains('done')?'已标记完成':'已恢复为待办')}
+    function toggleDetail(btn,id){const panel=document.getElementById(id);panel.classList.toggle('open');btn.textContent=panel.classList.contains('open')?'收起明细':'展开明细'}
+    function viewport(width){document.getElementById('preview-shell').style.width=width+'px'}
+    let toastTimer;function toast(message){const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1500)}
+  </script>
+</body>
+</html>

@@ -872,7 +872,7 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
           className="text-[10px] text-center px-3 py-3 leading-relaxed"
           style={{ color: '#8E8E93' }}
         >
-          本报告仅基于已确认的数据提供信息分析和决策辅助，不承诺协商、征信修复、债务减免或法律结果。
+          本报告仅基于用户提交并确认的数据生成，仅用于信息整理和决策参考，不构成法律、财务或征信处理意见。涉及还款方案、债务协商、征信异议或法律事项时，建议咨询具备相应资质的专业人士或有关机构。
         </p>
 
         {/* Footer — matching original layout exactly */}

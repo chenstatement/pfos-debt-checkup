@@ -117,11 +117,11 @@ const RULES: RiskRule[] = [
     check: (debt, ctx) => {
       if (!ctx.forecast.firstNegativeDate) return false
       if (debt.status === 'closed') return false
-      // Only flag this debt if its due date is within the negative window
-      const gapDays = daysUntil(ctx.forecast.firstNegativeDate!, ctx.asOfDate)
-      if (gapDays > 30) return false
+      // Only flag this debt if its due date falls on or before the first negative date
       const debtDays = daysUntil(debt.nextDueDate, ctx.asOfDate)
-      return debtDays >= 0 && debtDays <= 30
+      const gapDays = daysUntil(ctx.forecast.firstNegativeDate!, ctx.asOfDate)
+      if (debtDays < 0 || gapDays > 30) return false
+      return debtDays <= gapDays
     },
     riskLevel: 'high',
     reasonCodes: ['FORECAST_NEGATIVE'],
@@ -191,8 +191,6 @@ export function assessDebtRisk(input: RiskEngineInput): RiskEngineOutput {
   const warnings: RiskWarning[] = []
   const allActionCodes = new Set<ActionCode>()
 
-  const now = new Date().toISOString()
-
   for (const debt of activeDebts) {
     const matchedRules: RiskRule[] = []
     const allReasonCodes: RiskReasonCode[] = []
@@ -232,19 +230,26 @@ export function assessDebtRisk(input: RiskEngineInput): RiskEngineOutput {
       // Normal debt with no risk triggers — keep low risk, no false reasons
     }
 
-    // CR-05: Detect past due date with status still "normal"
+    // ── Detect past due date with status still "normal" ──
+    // Already-past due debts must be flagged as overdue regardless of data completeness
     if (debt.status === 'normal' && debt.nextDueDate < context.asOfDate) {
-      uniqueReasons.push('MISSING_CRITICAL_DATA')
-      uniqueActions.push('VERIFY_DATA')
-      allActionCodes.add('VERIFY_DATA')
-      if (highestRisk === 'low') highestRisk = 'medium'
+      uniqueReasons.push('OVERDUE')
+      uniqueActions.push('PREPARE_PAYMENT')
+      allActionCodes.add('PREPARE_PAYMENT')
+      highestRisk = 'urgent'
+      // Only add MISSING_CRITICAL_DATA when data is actually insufficient
+      if (!isDebtDataSufficient(debt)) {
+        uniqueReasons.push('MISSING_CRITICAL_DATA')
+        uniqueActions.push('VERIFY_DATA')
+        allActionCodes.add('VERIFY_DATA')
+      }
     }
 
     // ── Compute priority (P0-P3) ────────────────────────────
     const priority = computePriority(debt, highestRisk, context)
 
     assessments.push({
-      id: `risk_${debt.id}_${now}`,
+      id: `risk_${debt.id}`,
       userId: debt.userId,
       debtId: debt.id,
       riskLevel: highestRisk,
@@ -254,12 +259,12 @@ export function assessDebtRisk(input: RiskEngineInput): RiskEngineOutput {
       requiresHumanVerification,
       ruleVersion,
       inputVersion: ruleVersion, // track input snapshot version
-      assessedAt: now,
+      assessedAt: context.asOfDate,
     })
   }
 
   // ── Generate actions from assessments ────────────────────
-  const actions = generateActions(assessments, activeDebts, profile, now)
+  const actions = generateActions(assessments, activeDebts, profile, asOfDate)
 
   // ── Generate warnings ────────────────────────────────────
   if (forecast.firstNegativeDate) {
@@ -294,8 +299,9 @@ function computePriority(
   riskLevel: RiskLevel,
   ctx: RuleContext
 ): PriorityLevel {
-  // P0: Overdue or 3-day breaking risk
+  // P0: Overdue status OR past-due date with status still "normal"
   if (debt.status === 'overdue') return 'P0'
+  if (debt.status === 'normal' && debt.nextDueDate < ctx.asOfDate) return 'P0'
 
   const days = daysUntil(debt.nextDueDate, ctx.asOfDate)
   if (days <= THRESHOLDS.URGENT_DUE_DAYS && debt.currentAmountDueFen > ctx.availableCashFen) {
@@ -368,7 +374,7 @@ function buildAction(
   now: string
 ): ActionItem | null {
   const base = {
-    id: `action_${debt.id}_${actionCode}_${Date.now()}`,
+    id: `action_${debt.id}_${actionCode}`,
     userId: debt.userId,
     relatedDebtId: debt.id,
     actionCode,
