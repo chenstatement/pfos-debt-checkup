@@ -365,8 +365,7 @@ function expandDayEvents(
     const firstAmountFen = debt.currentAmountDueFen ?? debt.currentDueAmountFen ?? Math.round((debt.currentDueAmount || 0) * 100)
     const effectiveFirstFen = firstAmountFen > 0 ? firstAmountFen : regularAmountFen
 
-    // Treat as overdue if status='overdue' OR past-due normal debt (nextDueDate before report date)
-    const isOverdue = debt.status === 'overdue' || (debt.status === 'normal' && !!debt.nextDueDate && debt.nextDueDate < startDate)
+    const isOverdue = debt.status === 'overdue'
     const termKnown = debt.termKnown === true
     const remaining = Number(debt.termRemaining)
     const method = (debt as any).repaymentMethod || 'unknown'
@@ -472,7 +471,7 @@ function expandDayEvents(
         if (resumeDueDate) {
           const effectiveDueDay2 = debt.dueDay ?? Number(resumeDueDate.split('-')[2])
           const idx = paymentIndexForDate(resumeDueDate, date, effectiveDueDay2)
-          if (idx > 0 && idx <= afterRemaining) {
+          if (idx >= 0 && idx <= afterRemaining) {
             const sched = addMonthsClamped(resumeDueDate, idx, effectiveDueDay2)
             if (sched === date) {
               events.push({
