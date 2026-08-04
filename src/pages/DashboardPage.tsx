@@ -234,31 +234,26 @@ function ActionSection({
     { label: '本月', color: '#5B6471', items: thisMonth },
   ]
 
-  const totalActions = today.length + thisWeek.length + thisMonth.length
-
-  if (totalActions === 0) {
-    return (
-      <div className="py-4">
-        <p className="text-[13px] text-center" style={{ color: '#8E8E93' }}>
-          暂无新增行动
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="grid gap-2.5">
       {groups.map(group => {
         if (group.items.length === 0) {
           return (
-            <div key={group.label} className="flex items-center gap-3 py-2">
+            <div
+              key={group.label}
+              className="flex items-center gap-2.5 min-h-[52px] py-2.5 px-3 rounded-xl border"
+              style={{ background: '#fff', borderColor: 'rgba(0,0,0,0.06)' }}
+            >
               <span
-                className="text-[11px] font-bold text-white rounded-lg px-2 py-1.5 min-w-[36px] text-center"
+                className="text-[11px] font-bold text-white rounded-lg px-2 py-1.5 min-w-[36px] text-center shrink-0"
                 style={{ background: group.color }}
               >
                 {group.label}
               </span>
-              <p className="text-[12px]" style={{ color: '#8E8E93' }}>暂无新增行动</p>
+              <p className="flex-1 min-w-0 text-[13px] font-semibold leading-snug" style={{ color: '#8E8E93' }}>
+                暂无新增行动
+              </p>
+              <span className="shrink-0 w-6 h-6" aria-hidden="true" />
             </div>
           )
         }
