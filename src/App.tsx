@@ -14,8 +14,6 @@ import CashflowPage from './pages/CashflowPage'
 import RiskPage from './pages/RiskPage'
 import ActionCenterPage from './pages/ActionCenterPage'
 import NegotiationPage from './pages/NegotiationPage'
-import WeeklyReviewPage from './pages/WeeklyReviewPage'
-import ReportPage from './pages/ReportPage'
 import SettingsPage from './pages/SettingsPage'
 import DisclaimerFooter from './components/DisclaimerFooter'
 
@@ -45,8 +43,6 @@ function GuardedRoutes() {
       <Route path="/risk" element={<RiskPage report={report} activeDebts={data.debts} />} />
       <Route path="/actions" element={<ActionCenterPage report={report} />} />
       <Route path="/negotiation/:debtId" element={<NegotiationPage />} />
-      <Route path="/weekly-review" element={<WeeklyReviewPage report={report} />} />
-      <Route path="/report" element={<ReportPage report={report} />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

@@ -89,23 +89,6 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: '债务清单', path: '/debts', icon: '📋' },
-            { label: '现金流预测', path: '/cashflow', icon: '📈' },
-            { label: '行动计划', path: '/actions', icon: '✅' },
-            { label: '风险详情', path: '/risk', icon: '⚠️' },
-            { label: '体检报告', path: '/report', icon: '📄' },
-            { label: '周度复盘', path: '/weekly-review', icon: '📝' },
-          ].map(n => (
-            <button key={n.path} onClick={() => navigate(n.path)}
-                    className="apple-card text-center py-3 tap-active">
-              <p className="text-xl mb-1">{n.icon}</p>
-              <p className="text-[11px] font-medium" style={{ color: '#1C1C1E' }}>{n.label}</p>
-            </button>
-          ))}
-        </div>
 
         {/* Top action */}
         {topAction && (

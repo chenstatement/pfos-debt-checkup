@@ -111,17 +111,17 @@ test.describe('P0: 仪表盘功能', () => {
     await expect(page.getByText('缺口日期')).toBeVisible()
   })
 
-  test('TC-DASH-009: 6个功能入口可见', async ({ page }) => {
-    await expect(page.getByText('债务清单')).toBeVisible()
-    await expect(page.getByText('现金流预测')).toBeVisible()
-    await expect(page.getByText('行动计划')).toBeVisible()
-    await expect(page.getByText('风险详情')).toBeVisible()
-    await expect(page.getByText('体检报告')).toBeVisible()
-    await expect(page.getByText('周度复盘')).toBeVisible()
+  test('TC-DASH-009: 首页4个功能卡片可见', async ({ page }) => {
+    await page.goto(BASE)
+    await expect(page.getByText('盘点全部债务')).toBeVisible()
+    await expect(page.getByText('90天现金流推演')).toBeVisible()
+    await expect(page.getByText('风险优先级排序')).toBeVisible()
+    await expect(page.getByText('可执行行动清单')).toBeVisible()
   })
 
-  test('TC-DASH-010: 债务清单跳转', async ({ page }) => {
-    await page.getByText('债务清单').click()
+  test('TC-DASH-010: 首页卡片跳转 → 债务清单', async ({ page }) => {
+    await page.goto(BASE)
+    await page.getByText('盘点全部债务').click()
     await page.waitForURL('**/debts**', { timeout: 5000 })
     await expect(page.getByText('债务台账')).toBeVisible()
   })
@@ -191,7 +191,8 @@ test.describe('P0: 债务台账', () => {
     await page.waitForTimeout(200)
     await page.locator('button', { hasText: '生成体检报告' }).click()
     await page.waitForURL('**/dashboard**', { timeout: 5000 })
-    await page.getByText('债务清单').click()
+    await page.goto(BASE)
+    await page.getByText('盘点全部债务').click()
     await page.waitForURL('**/debts**', { timeout: 5000 })
   })
 

@@ -33,18 +33,19 @@ export default function WelcomePage() {
       {/* Feature cards */}
       <div className="w-full max-w-sm space-y-3 mb-10">
         {[
-          { icon: '💰', title: '盘点全部债务', desc: '看清欠谁、欠多少、何时还' },
-          { icon: '📈', title: '90天现金流推演', desc: '发现资金缺口和还款碰撞日' },
-          { icon: '⚠️', title: '风险优先级排序', desc: '知道哪笔债务需要最先处理' },
-          { icon: '✅', title: '可执行行动清单', desc: '今天、本周、本月该做什么' },
-        ].map((f, i) => (
-          <div key={i} className="apple-card flex items-center gap-4 py-4 px-5">
+          { icon: '💰', title: '盘点全部债务', desc: '看清欠谁、欠多少、何时还', path: '/debts' },
+          { icon: '📈', title: '90天现金流推演', desc: '发现资金缺口和还款碰撞日', path: '/cashflow' },
+          { icon: '⚠️', title: '风险优先级排序', desc: '知道哪笔债务需要最先处理', path: '/risk' },
+          { icon: '✅', title: '可执行行动清单', desc: '今天、本周、本月该做什么', path: '/actions' },
+        ].map((f) => (
+          <button key={f.path} type="button" onClick={() => navigate(f.path)}
+                  className="apple-card flex items-center gap-4 py-4 px-5 w-full text-left cursor-pointer tap-active transition-shadow hover:shadow-md">
             <span className="text-2xl">{f.icon}</span>
             <div>
               <p className="text-[15px] font-semibold text-[#1C1C1E]">{f.title}</p>
               <p className="text-[13px] text-[#8E8E93] mt-0.5">{f.desc}</p>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
