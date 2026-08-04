@@ -85,8 +85,7 @@ export default function WizardPage() {
     expenses.forEach((e: any) => { if (!data.expenses.find((de: any) => de.id === e.id)) sExp({ id: e.id, category: 'other', label: e.label, amountFen: yuanToFen(e.amountYuan), dayOfMonth: e.dayOfMonth, recurring: e.recurring, oneTimeDate: e.oneTimeDate, essential: e.essential, deferrable: e.deferrable }) })
     const wDebtIds = new Set(debts.map((d: any) => d.id)); data.debts.forEach((d: any) => { if (!d.deletedAt && !wDebtIds.has(d.id)) archiveDebt(d.id) })
     debts.forEach((d: any) => {
-      if (data.debts.find((dd: any) => dd.id === d.id)) archiveDebt(d.id)
-      sDebt(d)
+      if (!data.debts.find((dd: any) => dd.id === d.id && !dd.deletedAt)) sDebt(d)
     })
     data.assets.forEach((a: any) => dAst(a.id))
     assets.forEach((a: any) => sAst({ id: a.id, type: a.type, label: a.label, amountFen: yuanToFen(a.amountYuan), liquid: a.availabilityKnown && !!a.availableDate && a.availableDate <= snap.asOfDate, ownership: a.ownership, realizableAmountFen: yuanToFen(a.realizableAmountYuan || a.amountYuan), availableDate: a.availabilityKnown ? a.availableDate : '', availabilityKnown: a.availabilityKnown }))
@@ -152,7 +151,7 @@ export default function WizardPage() {
         {/* ── Step 3: Debts ─────────────────────────────────── */}
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="section-title">债务清单</h2>
+            <h2 className="section-title">债务台账</h2>
             <p className="section-subtitle">每笔债务录入后，系统会自动计算90天现金流和风险等级。</p>
             {debts.length > 0 && (
               <div className="space-y-2">
@@ -236,7 +235,7 @@ export default function WizardPage() {
                 const due = parseFloat(dfm.currentDue) || parseFloat(dfm.monthly) || parseFloat(dfm.overdueAmount)
                 if (!dfm.platform.trim() || due <= 0) return
                 const now = new Date().toISOString()
-                setDebts((p: any) => [...p, {
+                const newDebt = {
                   id: uid(), userId: 'local_user', creditorName: dfm.platform.trim(), debtType: dfm.debtType, currency: 'CNY',
                   outstandingPrincipalFen: yuanToFen(dfm.principal || '0'),
                   currentAmountDueFen: yuanToFen(dfm.currentDue || dfm.monthly || '0'),
@@ -249,7 +248,9 @@ export default function WizardPage() {
                   expectedRepayDate: dfm.overdue ? (dfm.expectedRepayDate || undefined) : undefined,
                   hasCollateral: false, hasGuarantor: false, hasCoBorrower: false,
                   dataConfidence: 'estimated', source: 'manual', createdAt: now, updatedAt: now,
-                }])
+                }
+                setDebts((p: any) => [...p, newDebt])
+                sDebt(newDebt)
                 setDfm({ platform: '', debtType: 'credit_card', currentDue: '', monthly: '', nextDueDate: '', overdue: false, overdueDays: '', overdueAmount: '', expectedRepayDate: '', dueDay: 20, annualRate: '', termRemaining: '', termKnown: false, principal: '', collectionPressure: 'none', repayMethod: 'unknown' })
               }} disabled={!dfm.platform.trim() || !(parseFloat(dfm.currentDue) > 0 || parseFloat(dfm.monthly) > 0 || parseFloat(dfm.overdueAmount) > 0)}
                       className={btnSec} style={{ opacity: (!dfm.platform.trim() || !(parseFloat(dfm.currentDue) > 0 || parseFloat(dfm.monthly) > 0 || parseFloat(dfm.overdueAmount) > 0)) ? 0.3 : 1 }}>
