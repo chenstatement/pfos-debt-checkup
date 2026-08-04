@@ -153,10 +153,10 @@ export default function WizardPage() {
           <div className="space-y-4">
             <h2 className="section-title">债务台账</h2>
             <p className="section-subtitle">每笔债务录入后，系统会自动计算90天现金流和风险等级。</p>
-            {debts.length > 0 && (
+            {data.debts.filter((d: any) => !d.deletedAt).length > 0 && (
               <div className="space-y-2">
-                {debts.map((d: any) => (
-                  <div key={d.id} className="apple-card py-3 px-4">
+                {data.debts.filter((d: any) => !d.deletedAt).map((d: any) => (
+                  <div key={d.id} className="apple-card py-3 px-4 cursor-pointer tap-active" onClick={() => nav(`/debts/${d.id}`)}>
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[15px] font-semibold text-[#1C1C1E]">{d.creditorName}</span>
@@ -164,7 +164,7 @@ export default function WizardPage() {
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(0,122,255,0.06)', color: '#007AFF' }}>{{'balloon':'到期还本','interest_first':'先息后本','equal_installment':'分期','minimum_payment':'最低还款','flexible':'灵活','unknown':'未知'}[d.repaymentMethod] || '未知'}</span>
                         {d.status === 'overdue' && <span className="text-[11px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(255,59,48,0.08)', color: '#FF3B30' }}>逾期</span>}
                       </div>
-                      <button onClick={() => setDebts((p: any) => p.filter((x: any) => x.id !== d.id))} className="text-[#8E8E93] text-sm shrink-0 ml-2">删除</button>
+                      <button onClick={(e) => { e.stopPropagation(); setDebts((p: any) => p.filter((x: any) => x.id !== d.id)); archiveDebt(d.id) }} className="text-[#8E8E93] text-sm shrink-0 ml-2">删除</button>
                     </div>
                     <div className="text-[12px] space-y-0.5" style={{ color: '#6E6E73' }}>
                       <div className="flex gap-3">

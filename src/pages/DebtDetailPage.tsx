@@ -20,12 +20,19 @@ export default function DebtDetailPage() {
     debtType: debt?.debtType || 'credit_card' as DebtType,
     principalYuan: debt ? formatFenAsYuan(debt.outstandingPrincipalFen) : '',
     dueAmountYuan: debt ? formatFenAsYuan(debt.currentAmountDueFen) : '',
+    monthlyYuan: debt?.monthlyPaymentFen ? formatFenAsYuan(debt.monthlyPaymentFen) : '',
     dueDate: debt?.nextDueDate || '',
+    dueDay: debt?.dueDay || (debt?.nextDueDate ? Number(debt.nextDueDate.split('-')[2]) : null) || 20,
     annualRateStr: debt?.annualRateBps ? (debt.annualRateBps / 100).toFixed(2) : '',
+    termKnown: debt?.termKnown || false,
+    termRemaining: debt?.termRemaining ? String(debt.termRemaining) : '',
+    expectedRepayDate: debt?.expectedRepayDate || '',
     status: debt?.status || 'normal' as DebtStatus,
+    hasOverdue: debt?.status === 'overdue',
     hasCollateral: debt?.hasCollateral || false,
     hasGuarantor: debt?.hasGuarantor || false,
     hasCoBorrower: debt?.hasCoBorrower || false,
+    affectsEssentialLiving: debt?.affectsEssentialLiving || false,
     repaymentMethod: debt?.repaymentMethod || 'unknown' as RepaymentMethod,
     dataConfidence: debt?.dataConfidence || 'confirmed' as 'confirmed' | 'estimated' | 'unknown',
   })
@@ -58,12 +65,19 @@ export default function DebtDetailPage() {
       debtType: debt.debtType,
       principalYuan: formatFenAsYuan(debt.outstandingPrincipalFen),
       dueAmountYuan: formatFenAsYuan(debt.currentAmountDueFen),
+      monthlyYuan: debt.monthlyPaymentFen ? formatFenAsYuan(debt.monthlyPaymentFen) : '',
       dueDate: debt.nextDueDate,
+      dueDay: debt.dueDay || (debt.nextDueDate ? Number(debt.nextDueDate.split('-')[2]) : null) || 20,
       annualRateStr: debt.annualRateBps ? (debt.annualRateBps / 100).toFixed(2) : '',
+      termKnown: debt.termKnown || false,
+      termRemaining: debt.termRemaining ? String(debt.termRemaining) : '',
+      expectedRepayDate: debt.expectedRepayDate || '',
       status: debt.status,
+      hasOverdue: debt.status === 'overdue',
       hasCollateral: debt.hasCollateral,
       hasGuarantor: debt.hasGuarantor,
       hasCoBorrower: debt.hasCoBorrower,
+      affectsEssentialLiving: debt.affectsEssentialLiving || false,
       repaymentMethod: debt.repaymentMethod,
       dataConfidence: debt.dataConfidence,
     })
@@ -102,13 +116,19 @@ export default function DebtDetailPage() {
       debtType: editForm.debtType,
       outstandingPrincipalFen: principalFen,
       currentAmountDueFen: yuanToFen(editForm.dueAmountYuan || editForm.principalYuan),
+      monthlyPaymentFen: editForm.monthlyYuan ? yuanToFen(editForm.monthlyYuan) : undefined,
       nextDueDate: editForm.dueDate,
+      dueDay: editForm.dueDay,
       annualRateBps: editForm.annualRateStr ? Math.round(parseFloat(editForm.annualRateStr) * 100) : undefined,
+      termKnown: editForm.termKnown || undefined,
+      termRemaining: editForm.termRemaining ? parseInt(editForm.termRemaining) || undefined : undefined,
+      expectedRepayDate: editForm.hasOverdue ? (editForm.expectedRepayDate || undefined) : undefined,
       status: finalStatus,
       overdueSince,
       hasCollateral: editForm.hasCollateral,
       hasGuarantor: editForm.hasGuarantor,
       hasCoBorrower: editForm.hasCoBorrower,
+      affectsEssentialLiving: editForm.affectsEssentialLiving || undefined,
       repaymentMethod: editForm.repaymentMethod,
       dataConfidence: editForm.dataConfidence,
     })
@@ -149,9 +169,14 @@ export default function DebtDetailPage() {
           <div className="bg-pfos-surface rounded-xl p-4 border border-pfos-border space-y-3">
             <Row label="剩余本金" value={`¥${formatFenAsYuan(debt.outstandingPrincipalFen)}`} />
             <Row label="本期应还" value={`¥${formatFenAsYuan(debt.currentAmountDueFen)}`} bold />
-            <Row label="还款日" value={debt.nextDueDate} />
+            {debt.monthlyPaymentFen ? <Row label="常规月供" value={`¥${formatFenAsYuan(debt.monthlyPaymentFen)}`} /> : null}
+            <Row label="还款日" value={debt.nextDueDate || '待填'} />
+            {debt.dueDay ? <Row label="月还款日" value={`每月 ${debt.dueDay} 号`} /> : null}
             {debt.annualRateBps ? <Row label="年化利率" value={`${(debt.annualRateBps / 100).toFixed(2)}%`} /> : null}
+            {debt.termRemaining ? <Row label="剩余期数" value={`${debt.termRemaining} 期${debt.termKnown ? '（已确认）' : ''}`} /> : null}
+            {debt.expectedRepayDate ? <Row label="预计还款日" value={debt.expectedRepayDate} /> : null}
             <Row label="还款方式" value={debt.repaymentMethod} />
+            {debt.affectsEssentialLiving ? <Row label="影响基本生活" value="是" bold /> : null}
             <Row label="数据来源" value={debt.dataConfidence === 'confirmed' ? '已确认' : debt.dataConfidence === 'estimated' ? '估算' : '未知'} />
           </div>
 
@@ -208,15 +233,40 @@ export default function DebtDetailPage() {
               <input type="number" inputMode="decimal" value={editForm.annualRateStr} onChange={e => setEditForm({...editForm, annualRateStr: e.target.value})} className={fieldClass} />
             </div>
             <div>
+              <label className={labelClass}>常规月供（元）<span className="text-[#8E8E93] font-normal"> 选填</span></label>
+              <input type="number" inputMode="decimal" placeholder="同本期应还" value={editForm.monthlyYuan} onChange={e => setEditForm({...editForm, monthlyYuan: e.target.value})} className={fieldClass} />
+            </div>
+            <div>
+              <label className={labelClass}>月还款日</label>
+              <select value={editForm.dueDay} onChange={e => setEditForm({...editForm, dueDay: parseInt(e.target.value)})} className={fieldClass}>
+                {Array.from({length: 31}, (_, i) => i + 1).map(d => <option key={d} value={d}>每月 {d} 号</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="flex items-center gap-1 text-sm mb-1">
+                <input type="checkbox" checked={editForm.termKnown} onChange={e => setEditForm({...editForm, termKnown: e.target.checked})} /> 已知剩余期数
+              </label>
+              {editForm.termKnown && (
+                <input type="number" inputMode="numeric" placeholder="剩余月数" value={editForm.termRemaining} onChange={e => setEditForm({...editForm, termRemaining: e.target.value})} className={fieldClass} />
+              )}
+            </div>
+            {editForm.hasOverdue && (
+              <div>
+                <label className={labelClass}>预计还款日 <span className="text-[#8E8E93] font-normal">计划哪天处理这笔逾期</span></label>
+                <input type="date" value={editForm.expectedRepayDate} onChange={e => setEditForm({...editForm, expectedRepayDate: e.target.value})} className={fieldClass} />
+              </div>
+            )}
+            <div>
               <label className={labelClass}>当前状态</label>
               <select value={editForm.status} onChange={e => setEditForm({...editForm, status: e.target.value as DebtStatus})} className={fieldClass}>
                 {Object.entries(DEBT_STATUS_LABELS).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={editForm.hasCollateral} onChange={e => setEditForm({...editForm, hasCollateral: e.target.checked})} /> 有抵押</label>
               <label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={editForm.hasGuarantor} onChange={e => setEditForm({...editForm, hasGuarantor: e.target.checked})} /> 有担保</label>
               <label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={editForm.hasCoBorrower} onChange={e => setEditForm({...editForm, hasCoBorrower: e.target.checked})} /> 有共同借款人</label>
+              <label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={editForm.affectsEssentialLiving} onChange={e => setEditForm({...editForm, affectsEssentialLiving: e.target.checked})} /> 影响基本生活</label>
             </div>
           </div>
 
