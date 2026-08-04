@@ -463,7 +463,8 @@ function expandDayEvents(
       }
 
       // After catch-up: remaining = termRemaining - 1 (catch-up consumed index 0)
-      const afterRemaining = termKnown ? remaining - 1 : 0
+      // When termKnown is false, keep generating payments indefinitely (consistent with non-overdue path)
+      const afterRemaining = termKnown ? remaining - 1 : Infinity
       const afterAmountFen = regularAmountFen > 0 ? regularAmountFen : effectiveFirstFen
       if (date > catchUpDate && afterAmountFen > 0 && afterRemaining > 0) {
         const resumeDueDate = getFirstFutureDueDate({...debt, nextDueDate: '', status: 'normal'}, startDate)
@@ -551,11 +552,12 @@ function addDays(isoDate: ISODate, n: number): ISODate {
 
 function getFirstFutureDueDate(debt: DebtInput, startDate: ISODate): ISODate | null {
   if (debt.nextDueDate && debt.nextDueDate >= startDate) return debt.nextDueDate
-  const dueDay = Number(debt.dueDay || 20)
+  // Preserve day-of-month from original nextDueDate even when past due
+  const effectiveDueDay = debt.dueDay || (debt.nextDueDate ? Number(debt.nextDueDate.split('-')[2]) : null) || 20
   const [year, month, day] = startDate.split('-').map(Number)
-  const thisMonth = makeClampedDate(year, month, dueDay)
-  if (thisMonth >= startDate && day <= dueDay) return thisMonth
-  return makeClampedDate(year, month + 1, dueDay)
+  const thisMonth = makeClampedDate(year, month, effectiveDueDay)
+  if (thisMonth >= startDate && day <= effectiveDueDay) return thisMonth
+  return makeClampedDate(year, month + 1, effectiveDueDay)
 }
 
 function paymentIndexForDate(firstDueDate: ISODate, date: ISODate, dueDay: number): number {
