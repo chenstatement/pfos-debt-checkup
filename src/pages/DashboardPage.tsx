@@ -45,7 +45,7 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
              style={{ background: 'rgba(242,242,247,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <div className="flex justify-between items-center">
             <button onClick={() => navigate('/')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>首页</button>
-            <h1 className="text-[16px] font-semibold text-[#1C1C1E]">我的债务报告</h1>
+            <h1 className="text-[16px] font-semibold text-[#1C1C1E]">我的体检报告</h1>
             <button onClick={() => navigate('/wizard')} className="text-[13px] px-3 py-1.5 rounded-full" style={{ color: '#007AFF', background: 'rgba(0,122,255,0.06)' }}>修改数据</button>
           </div>
         </div>

@@ -32,9 +32,9 @@ export default function DebtListPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-3">
-      <StickyHeader title="债务台账" />
+      <StickyHeader title="债务清单" />
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-bold text-pfos-text">债务台账</h1>
+        <h1 className="text-lg font-bold text-pfos-text">债务清单</h1>
         <button onClick={() => navigate('/wizard')} className="text-sm text-pfos-accent font-medium">
           + 新增
         </button>

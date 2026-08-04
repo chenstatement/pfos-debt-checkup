@@ -32,7 +32,7 @@ src/
 ├── domain/       # 类型、金额(MoneyFen)、常量
 ├── engine/       # 纯函数: nowcast(现金流)、riskEngine(R01-R08/P0-P3)、debtPriority、actionPlan
 ├── store/        # AppContext (localStorage持久化)
-├── pages/        # Welcome/Wizard/Dashboard/DebtList/Cashflow/Risk/Actions/Negotiation/WeeklyReview/Report/Settings
+├── pages/        # Welcome/Wizard/Dashboard/DebtList/Cashflow/Risk/Actions/Negotiation/Settings
 └── components/   # ConsentGuard、DisclaimerFooter
 ```
 

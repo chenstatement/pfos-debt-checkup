@@ -123,7 +123,7 @@ test.describe('P0: 仪表盘功能', () => {
     await page.goto(BASE)
     await page.getByText('盘点全部债务').click()
     await page.waitForURL('**/debts**', { timeout: 5000 })
-    await expect(page.getByText('债务台账')).toBeVisible()
+    await expect(page.getByText('债务清单')).toBeVisible()
   })
 
   test('TC-DASH-018: 修改数据 → 向导', async ({ page }) => {
@@ -168,7 +168,7 @@ test.describe('P0: 数据持久化', () => {
   })
 })
 
-test.describe('P0: 债务台账', () => {
+test.describe('P0: 债务清单', () => {
 
   test.beforeEach(async ({ page }) => {
     await startWizard(page)

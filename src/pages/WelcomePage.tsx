@@ -68,7 +68,7 @@ export default function WelcomePage() {
             <button onClick={() => navigate('/dashboard')}
                     className="apple-btn apple-btn-primary w-full py-3.5 text-[17px]"
                     style={{ boxShadow: '0 4px 16px rgba(0,122,255,0.3)' }}>
-  查看我的债务报告
+  查看我的体检报告
             </button>
             <button onClick={() => navigate('/wizard')} className="apple-btn apple-btn-secondary w-full">
   继续录入数据

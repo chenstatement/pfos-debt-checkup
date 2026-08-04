@@ -14,13 +14,12 @@
 **核心能力已就绪：**
 - 免责声明版本追踪 + 路由守卫
 - 财务画像录入（含到账日/扣款日）
-- 债务台账（逾期自动检测、7 种类型）
+- 债务清单（逾期自动检测、7 种类型）
 - 90 天日级现金流预测（资金缺口、还款碰撞日）
 - R01-R08 风险规则 + P0-P3 优先级
 - 行动清单生成
 - 协商准备（检查表、沟通记录、方案比较）
-- 周度复盘
-- 财务体检报告导出
+- 数据管理（导出/删除）
 
 **已知待改进：** 部分功能仅完成 UI 层，深度业务准确性仍需端到端验证。详见 `REVIEW.md`。
 
@@ -61,18 +60,16 @@ src/
 │   └── __tests__/    # 3 测试套件, 44 测试
 ├── store/            # React Context 状态管理
 │   └── AppContext.tsx
-├── pages/            # 12 个页面
-│   ├── WelcomePage.tsx     # 欢迎 + 免责声明确认
+├── pages/            # 10 个页面
+│   ├── WelcomePage.tsx     # 欢迎 + 4功能入口卡片
 │   ├── WizardPage.tsx      # 5步录入向导（含自动草稿保存）
 │   ├── DashboardPage.tsx   # 首页总览（含金额隐私遮罩）
-│   ├── DebtListPage.tsx    # 债务台账（按P0-P3排序）
+│   ├── DebtListPage.tsx    # 债务清单（按P0-P3排序）
 │   ├── DebtDetailPage.tsx  # 单笔债务详情 + 风险依据
 │   ├── CashflowPage.tsx    # 90天现金流 + 月度汇总
 │   ├── RiskPage.tsx        # 风险与优先级列表
 │   ├── ActionCenterPage.tsx # 行动中心（完成/待办跟踪）
 │   ├── NegotiationPage.tsx # 协商准备（检查表、沟通记录、方案比较）
-│   ├── WeeklyReviewPage.tsx # 周度复盘
-│   ├── ReportPage.tsx      # 体检报告 + JSON导出
 │   └── SettingsPage.tsx    # 数据管理（导出/删除）
 ├── components/
 │   ├── ConsentGuard.tsx    # 路由守卫
