@@ -137,14 +137,18 @@ export default function WizardPage() {
         {/* ── Step 1: Income ────────────────────────────────── */}
         {step === 1 && renderListStep('收入信息', '设定每笔收入的到账日', incomes, setIncomes, ifm, setIfm, (f: any) => {
           if (!f.amount || parseFloat(f.amount) <= 0) return; if (!f.recurring && !f.oneTimeDate) return
-          setIncomes((p: any) => [...p, { id: uid(), label: f.label || '收入', amountYuan: f.amount, dayOfMonth: parseInt(f.day)||15, recurring: f.recurring, oneTimeDate: f.oneTimeDate, certainty: f.certainty }])
+          const newInc = { id: uid(), label: f.label || '收入', amountYuan: f.amount, dayOfMonth: parseInt(f.day)||15, recurring: f.recurring, oneTimeDate: f.oneTimeDate, certainty: f.certainty }
+          setIncomes((p: any) => [...p, newInc])
+          sInc({ id: newInc.id, source: 'salary', label: newInc.label, amountFen: yuanToFen(newInc.amountYuan), dayOfMonth: newInc.dayOfMonth, recurring: newInc.recurring, oneTimeDate: newInc.oneTimeDate, certainty: newInc.certainty })
           setIfm({ label: '', amount: '', day: '15', recurring: true, oneTimeDate: '', certainty: 'confirmed' })
         }, '元/月', true)}
 
         {/* ── Step 2: Expense ───────────────────────────────── */}
         {step === 2 && renderListStep('必要支出', '设定每笔支出的发生日', expenses, setExpenses, efm, setEfm, (f: any) => {
           if (!f.amount || parseFloat(f.amount) <= 0) return; if (!f.recurring && !f.oneTimeDate) return
-          setExpenses((p: any) => [...p, { id: uid(), label: f.label || '支出', amountYuan: f.amount, dayOfMonth: parseInt(f.day)||1, recurring: f.recurring, oneTimeDate: f.oneTimeDate, essential: f.essential, deferrable: f.deferrable }])
+          const newExp = { id: uid(), label: f.label || '支出', amountYuan: f.amount, dayOfMonth: parseInt(f.day)||1, recurring: f.recurring, oneTimeDate: f.oneTimeDate, essential: f.essential, deferrable: f.deferrable }
+          setExpenses((p: any) => [...p, newExp])
+          sExp({ id: newExp.id, category: 'other', label: newExp.label, amountFen: yuanToFen(newExp.amountYuan), dayOfMonth: newExp.dayOfMonth, recurring: newExp.recurring, oneTimeDate: newExp.oneTimeDate, essential: newExp.essential, deferrable: newExp.deferrable || false })
           setEfm({ label: '', amount: '', day: '1', recurring: true, oneTimeDate: '', essential: true, deferrable: false })
         }, '元/月', false)}
 
