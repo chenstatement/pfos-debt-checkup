@@ -1,7 +1,7 @@
 /** 通用顶部标题栏 — 返回按钮 + 标题，随滚动固定 */
 import { useNavigate } from 'react-router-dom'
 
-export default function StickyHeader({ title, backTo = '/dashboard' }: { title: string; backTo?: string }) {
+export default function StickyHeader({ title, backTo = '/' }: { title: string; backTo?: string }) {
   const nav = useNavigate()
   return (
     <div className="sticky top-0 z-10 safe-top"
