@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { RUNWAY_BASELINES } from '../../data/runwayBaselines'
-import { calculateRunway, formatMonthlySpend, formatRunwayDuration, validateCashInput } from '../runwayCalculator'
+import { calculateRunway, formatMonthlySpend, formatRunwayDuration, formatRunwayParts, validateCashInput } from '../runwayCalculator'
 
 describe('runway baseline coverage', () => {
   it('contains the confirmed 19 cities + 12 representative provinces + national average', () => {
@@ -47,6 +47,8 @@ describe('formatting and validation', () => {
     expect(formatRunwayDuration(0)).toBe('不足1个月')
     expect(formatRunwayDuration(12)).toBe('1年')
     expect(formatRunwayDuration(14)).toBe('1年2个月')
+    expect(formatRunwayParts(14)).toEqual({ years: '1年', months: '2个月' })
+    expect(formatRunwayParts(0)).toEqual({ years: '不足1年', months: '不足1个月' })
     expect(formatMonthlySpend(298908)).toBe('2,989.08 元/月')
   })
 

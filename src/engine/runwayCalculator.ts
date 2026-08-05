@@ -1,4 +1,4 @@
-/** 不上班续航计算引擎：金额使用整数分，规则确定且可复核。 */
+/** 不上班能过计算引擎：金额使用整数分，规则确定且可复核。 */
 
 import { yuanToFen } from '../domain/money'
 import type { RunwayBaseline } from '../data/runwayBaselines'
@@ -19,12 +19,12 @@ export interface RunwayResult {
   baseline: RunwayBaseline
   annualFen: number
   tiers: Record<SpendingTier, TierResult>
-  /** 日常过档位攒下的时间，折算为全年约 100 天休息的年数。 */
+  /** 正常过档位攒下的时间，折算为全年约 100 天休息的年数。 */
   restComparison: {
     days: number
     medianYears: number
   }
-  /** 兼容旧调用方：日常过续航折算成 10 天一组。 */
+  /** 兼容旧调用方：正常过能过时长折算成 10 天一组。 */
   tenDayBreakBlocks: number
 }
 
@@ -48,9 +48,9 @@ export function calculateRunway(cashYuan: number, baseline: RunwayBaseline): Run
   const tiers: Record<SpendingTier, TierResult> = {
     flat: makeTier('flat', '躺平过', '当地最低工资的 50%', Math.round(minimumWageFen * 0.5), cashFen),
     frugal: makeTier('frugal', '省着过', '当地最低工资的 100%', minimumWageFen, cashFen),
-    normal: makeTier('normal', '日常过', '当地官方月均消费', Math.round(annualFen / 12), cashFen),
-    comfortable: makeTier('comfortable', '从容过', '官方月均消费的 130%', Math.round(annualFen * 1.3 / 12), cashFen),
-    luxury: makeTier('luxury', '奢侈过', '官方月均消费的 300%', Math.round(annualFen * 3 / 12), cashFen),
+    normal: makeTier('normal', '正常过', '城镇居民平均消费的 100%', Math.round(annualFen / 12), cashFen),
+    comfortable: makeTier('comfortable', '从容过', '城镇居民平均消费的 130%', Math.round(annualFen * 1.3 / 12), cashFen),
+    luxury: makeTier('luxury', '奢侈过', '城镇居民平均消费的 300%', Math.round(annualFen * 3 / 12), cashFen),
   }
 
   // The comparison is intentionally a transparent PFOS benchmark, not an official universal statistic.
@@ -72,6 +72,13 @@ export function formatRunwayDuration(months: number): string {
   const years = Math.floor(months / 12)
   const remainder = months % 12
   return remainder === 0 ? `${years}年` : `${years}年${remainder}个月`
+}
+
+/** 将能过时长拆成卡片右侧的上下两行，年/月共用同一列并保持居中。 */
+export function formatRunwayParts(months: number): { years: string; months: string } {
+  if (months <= 0) return { years: '不足1年', months: '不足1个月' }
+  if (months < 12) return { years: '不足1年', months: `${months}个月` }
+  return { years: `${Math.floor(months / 12)}年`, months: `${months % 12}个月` }
 }
 
 export function formatMonthlySpend(monthlyFen: number): string {

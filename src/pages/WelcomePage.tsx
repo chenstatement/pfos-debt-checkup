@@ -96,7 +96,7 @@ export default function WelcomePage() {
                 style={{ border: '1.5px solid rgba(0,122,255,0.2)' }}>
           <span className="text-2xl">⏳</span>
           <div>
-            <p className="text-[15px] font-semibold text-[#007AFF]">不上班续航计算器</p>
+            <p className="text-[15px] font-semibold text-[#007AFF]">不上班能过多久测算工具</p>
             <p className="text-[13px] text-[#8E8E93] mt-0.5">20秒互动测算 · 看看现金能换来多久的选择权</p>
           </div>
           <span className="ml-auto text-[#007AFF] text-[14px]">→</span>
