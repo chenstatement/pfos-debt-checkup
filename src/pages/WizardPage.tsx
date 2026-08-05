@@ -236,7 +236,7 @@ export default function WizardPage() {
                 if (!dfm.platform.trim() || due <= 0) return
                 const now = new Date().toISOString()
                 const newDebt = {
-                  id: uid(), userId: 'local_user', creditorName: dfm.platform.trim(), debtType: dfm.debtType, currency: 'CNY',
+                  id: uid(), userId: 'local_user', creditorName: dfm.platform.trim(), debtType: dfm.debtType, currency: 'CNY' as const,
                   outstandingPrincipalFen: yuanToFen(dfm.principal || '0'),
                   currentAmountDueFen: yuanToFen(dfm.currentDue || dfm.monthly || '0'),
                   monthlyPaymentFen: dfm.monthly ? yuanToFen(dfm.monthly) : undefined,
