@@ -298,7 +298,9 @@ export default function WizardPage() {
               {afm.availabilityKnown && <input type="date" value={afm.availableDate} onChange={e => setAfm({...afm, availableDate: e.target.value})} className={inputCls} />}
               <button onClick={() => {
                 if (!afm.amount || parseFloat(afm.amount) <= 0) return; if (afm.availabilityKnown && !afm.availableDate) return
-                setAssets((p: any) => [...p, { id: uid(), type: afm.type, label: afm.label || '资产', amountYuan: afm.amount, ownership: afm.ownership, realizableAmountYuan: afm.realizableAmount || afm.amount, availabilityKnown: afm.availabilityKnown, availableDate: afm.availableDate, note: afm.note }])
+                const newAsset = { id: uid(), type: afm.type, label: afm.label || '资产', amountYuan: afm.amount, ownership: afm.ownership, realizableAmountYuan: afm.realizableAmount || afm.amount, availabilityKnown: afm.availabilityKnown, availableDate: afm.availableDate, note: afm.note }
+                setAssets((p: any) => [...p, newAsset])
+                sAst({ id: newAsset.id, type: newAsset.type, label: newAsset.label, amountFen: yuanToFen(newAsset.amountYuan), liquid: newAsset.availabilityKnown && !!newAsset.availableDate && newAsset.availableDate <= (data.profile.dataAsOf || todayISO()), ownership: newAsset.ownership, realizableAmountFen: yuanToFen(newAsset.realizableAmountYuan || newAsset.amountYuan), availableDate: newAsset.availabilityKnown ? newAsset.availableDate : '', availabilityKnown: newAsset.availabilityKnown })
                 setAfm({ type: 'deposit', label: '', amount: '', ownership: 'personal', realizableAmount: '', availabilityKnown: true, availableDate: '', note: '' })
               }} disabled={!afm.amount || parseFloat(afm.amount) <= 0 || (afm.availabilityKnown && !afm.availableDate)}
                       className={btnSec} style={{ opacity: (!afm.amount || parseFloat(afm.amount) <= 0 || (afm.availabilityKnown && !afm.availableDate)) ? 0.3 : 1 }}>
