@@ -78,9 +78,9 @@ export const RUNWAY_BASELINES: RunwayBaseline[] = [
   city('nanjing', '南京市', '新一线城市', 49506, 2490, 'https://www.crei.cn/file/br.aspx?id=20260518090326', '2026-05-18', '南京市统计局'),
   city('tianjin', '天津市', '新一线城市', 39693, 2320, 'https://tjzd.stats.gov.cn/system/2026/01/20/030241179.shtml', '2026-01-20', '国家统计局天津调查总队'),
   city('changsha', '长沙市', '新一线城市', 48547, 2100, 'https://tjj.hunan.gov.cn/hntj/tjfx/tjgb/szgb/zss_1/202605/t20260512_33975356.html', '2026-05-12', '湖南省统计局'),
-  city('dongguan', '东莞市', '新一线城市', 46416, 2500, 'https://tjj.dg.gov.cn/gkmlpt/content/4/4537/post_4537415.html', '2026-04-01', '东莞市统计局'),
+  city('dongguan', '东莞市', '新一线城市', 43454, 2500, 'https://tjj.dg.gov.cn/zfxxgkml/tjxx/content/post_4537714.html', '2026-05-12', '东莞市统计局'),
   city('ningbo', '宁波市', '新一线城市', 55546, 2490, 'https://zjzd.stats.gov.cn/gjtjjnbdcd/zwgk/xxgkml/dcsj/jdsj/cxjmszqk/art/2026/art_8e7a0c4ec48a4667a9074238cf7be4ca.html', '2026-02-05', '国家统计局宁波调查队'),
-  city('foshan', '佛山市', '新一线城市', 46416, 2500, 'https://www.foshanplus.com/news/1041159.html', '2026-05-01', '佛山市统计局'),
+  city('foshan', '佛山市', '新一线城市', 46416, 2500, 'https://epaper1.fsonline.com.cn/fsrb/html/2026-06/14/content_71827_329214.htm', '2026-06-14', '佛山市统计局、国家统计局佛山调查队'),
   city('hefei', '合肥市', '新一线城市', 30539, 2060, 'https://www.chinanews.com.cn/cj/2026/03-19/10589656.shtml', '2026-03-19', '安徽省统计局'),
   city('qingdao', '青岛市', '新一线城市', 42391, 2200, 'https://www.crei.cn/file/br.aspx?id=20260414135024&op=zc&x=0', '2026-04-14', '青岛市统计局'),
 

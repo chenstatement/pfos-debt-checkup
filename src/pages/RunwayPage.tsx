@@ -6,7 +6,7 @@ import { RUNWAY_BASELINES } from '../data/runwayBaselines'
 import { calculateRunway, formatRunwayParts, formatMonthlySpend, validateCashInput, parseCashYuan } from '../engine/runwayCalculator'
 import type { RunwayResult, SpendingTier } from '../engine/runwayCalculator'
 
-const DEFAULT_CASH = '100000'
+const DEFAULT_CASH = '30000'
 const RUNWAY_KICKER = 'PFOS · 20秒互动测算'
 const RUNWAY_TITLE = '不上班能过多久测算'
 const TIER_ORDER: SpendingTier[] = ['flat', 'frugal', 'normal', 'comfortable', 'luxury']

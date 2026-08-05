@@ -40,7 +40,7 @@ function makeTier(
 }
 
 export function calculateRunway(cashYuan: number, baseline: RunwayBaseline): RunwayResult {
-  const cashFen = yuanToFen(cashYuan)
+  const cashFen = yuanToFen(Math.max(0, cashYuan))
   const annualFen = Math.round(baseline.annualYuan * 100)
   const minimumWageFen = Math.round(baseline.minimumWageMonthlyYuan * 100)
   const dailyFen = Math.round(annualFen / 365)
