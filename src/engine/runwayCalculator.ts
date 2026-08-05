@@ -50,7 +50,7 @@ export function calculateRunway(cashYuan: number, baseline: RunwayBaseline): Run
     frugal: makeTier('frugal', '省着过', '当地最低工资的 100%', minimumWageFen, cashFen),
     normal: makeTier('normal', '正常过', '城镇居民平均消费的 100%', Math.round(annualFen / 12), cashFen),
     comfortable: makeTier('comfortable', '从容过', '城镇居民平均消费的 130%', Math.round(annualFen * 1.3 / 12), cashFen),
-    luxury: makeTier('luxury', '奢侈过', '城镇居民平均消费的 300%', Math.round(annualFen * 3 / 12), cashFen),
+    luxury: makeTier('luxury', '自由过', '城镇居民平均消费的 300%', Math.round(annualFen * 3 / 12), cashFen),
   }
 
   // The comparison is intentionally a transparent PFOS benchmark, not an official universal statistic.
