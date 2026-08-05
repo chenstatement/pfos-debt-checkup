@@ -107,7 +107,7 @@ export default function WizardPage() {
            style={{ background: 'rgba(242,242,247,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
         <div className="max-w-md mx-auto px-5 pt-3">
           <div className="flex justify-between items-center mb-4">
-            <button onClick={() => nav(data.debts.length > 0 ? '/dashboard' : '/')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>关闭</button>
+            <button onClick={() => nav('/')} className="text-[15px] font-medium" style={{ color: '#007AFF' }}>关闭</button>
             <p className="text-[13px] font-medium text-[#8E8E93]">{STEPS[step].label}</p>
             <div className="w-10" />
           </div>
