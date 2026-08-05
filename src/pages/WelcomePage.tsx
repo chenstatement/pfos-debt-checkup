@@ -38,7 +38,7 @@ export default function WelcomePage() {
           { icon: '⚠️', title: '风险优先级排序', desc: '知道哪笔债务需要最先处理', path: '/risk' },
           { icon: '✅', title: '可执行行动清单', desc: '今天、本周、本月该做什么', path: '/actions' },
         ].map((f) => (
-          <button key={f.path} type="button" onClick={() => navigate(f.path)}
+          <button key={f.path} type="button" onClick={() => { if (!hasConsented) acceptConsent('risk_disclosure'); navigate(f.path) }}
                   className="apple-card flex items-center gap-4 py-4 px-5 w-full text-left cursor-pointer tap-active transition-shadow hover:shadow-md">
             <span className="text-2xl">{f.icon}</span>
             <div>
@@ -87,6 +87,20 @@ export default function WelcomePage() {
 开始整理全部债务
           </button>
         )}
+      </div>
+
+      {/* Runway entry — independent, placed after main CTA, before privacy */}
+      <div className="w-full max-w-sm mt-6">
+        <button type="button" onClick={() => navigate('/runway')}
+                className="apple-card flex items-center gap-4 py-4 px-5 w-full text-left cursor-pointer tap-active transition-shadow hover:shadow-md"
+                style={{ border: '1.5px solid rgba(0,122,255,0.2)' }}>
+          <span className="text-2xl">⏳</span>
+          <div>
+            <p className="text-[15px] font-semibold text-[#007AFF]">不上班续航计算器</p>
+            <p className="text-[13px] text-[#8E8E93] mt-0.5">20秒互动测算 · 看看现金能换来多久的选择权</p>
+          </div>
+          <span className="ml-auto text-[#007AFF] text-[14px]">→</span>
+        </button>
       </div>
 
       {/* Privacy */}

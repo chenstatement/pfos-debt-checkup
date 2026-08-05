@@ -10,8 +10,11 @@ export default function RiskPage({ report, activeDebts }: { report: FullReport |
 
   if (!report || report.riskAssessments.length === 0) {
     return (
-      <div className="max-w-lg mx-auto px-5 py-12 text-center">
-        <p className="text-pfos-text-muted">请先录入债务以查看风险评估。</p>
+      <div>
+        <StickyHeader title="风险与优先级" />
+        <div className="max-w-lg mx-auto px-5 py-12 text-center">
+          <p className="text-pfos-text-muted">请先录入债务以查看风险评估。</p>
+        </div>
       </div>
     )
   }

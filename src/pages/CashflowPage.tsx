@@ -14,8 +14,11 @@ export default function CashflowPage({ report }: { report: FullReport | null }) 
   const monthly = useMemo(() => report ? aggregateMonthly(report.nowcast.dailyLedger) : [], [report])
 
   if (!report) return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" style={{ background: '#F2F2F7' }}>
-      <p className="text-[#8E8E93] text-[15px]">请先完成数据录入</p>
+    <div>
+      <StickyHeader title="现金流预测" />
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" style={{ background: '#F2F2F7' }}>
+        <p className="text-[#8E8E93] text-[15px]">请先完成数据录入</p>
+      </div>
     </div>
   )
 

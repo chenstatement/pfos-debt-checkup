@@ -10,8 +10,11 @@ export default function ActionCenterPage({ report }: { report: FullReport | null
 
   if (!report || report.actionPlan.length === 0) {
     return (
-      <div className="max-w-lg mx-auto px-5 py-12 text-center">
-        <p className="text-pfos-text-muted">请先完成数据录入以生成行动清单。</p>
+      <div>
+        <StickyHeader title="行动计划" />
+        <div className="max-w-lg mx-auto px-5 py-12 text-center">
+          <p className="text-pfos-text-muted">请先完成数据录入以生成行动清单。</p>
+        </div>
       </div>
     )
   }

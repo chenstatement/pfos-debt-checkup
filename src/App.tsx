@@ -6,6 +6,7 @@ import ConsentGuard from './components/ConsentGuard'
 
 // Pages & Components
 import WelcomePage from './pages/WelcomePage'
+import RunwayPage from './pages/RunwayPage'
 import WizardPage from './pages/WizardPage'
 import DashboardPage from './pages/DashboardPage'
 import DebtListPage from './pages/DebtListPage'
@@ -43,6 +44,7 @@ function GuardedRoutes() {
       <Route path="/risk" element={<RiskPage report={report} activeDebts={data.debts} />} />
       <Route path="/actions" element={<ActionCenterPage report={report} />} />
       <Route path="/negotiation/:debtId" element={<NegotiationPage />} />
+      <Route path="/runway" element={<RunwayPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
@@ -57,6 +59,7 @@ export default function App() {
         <Route path="/wizard" element={
           <ConsentGuard><WizardPage /></ConsentGuard>
         } />
+        <Route path="/runway" element={<RunwayPage />} />
         <Route path="/*" element={
           <ConsentGuard><GuardedRoutes /></ConsentGuard>
         } />

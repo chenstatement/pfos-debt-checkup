@@ -76,7 +76,7 @@ export default function WizardPage() {
     updateProfile({
       availableCashFen: yuanToFen(snap.availableCashYuan || '0'),
       protectedCashFen: yuanToFen(snap.protectedCashYuan || '0'),
-      fixedMonthlyIncomeFen: yuanToFen('0'), essentialMonthlyExpenseFen: yuanToFen('0'),
+      fixedMonthlyIncomeFen: data.profile.fixedMonthlyIncomeFen ?? 0, essentialMonthlyExpenseFen: data.profile.essentialMonthlyExpenseFen ?? 0,
       selfReportedStressLevel: snap.stressLevel as 1|2|3|4|5, dataAsOf: snap.asOfDate,
     })
     const wIncIds = new Set(incomes.map((i: any) => i.id)); data.incomes.forEach((i: any) => { if (!wIncIds.has(i.id)) dInc(i.id) })
@@ -88,7 +88,7 @@ export default function WizardPage() {
       if (!data.debts.find((dd: any) => dd.id === d.id && !dd.deletedAt)) sDebt(d)
     })
     data.assets.forEach((a: any) => dAst(a.id))
-    assets.forEach((a: any) => sAst({ id: a.id, type: a.type, label: a.label, amountFen: yuanToFen(a.amountYuan), liquid: a.availabilityKnown && !!a.availableDate && a.availableDate <= snap.asOfDate, ownership: a.ownership, realizableAmountFen: yuanToFen(a.realizableAmountYuan || a.amountYuan), availableDate: a.availabilityKnown ? a.availableDate : '', availabilityKnown: a.availabilityKnown }))
+    assets.forEach((a: any) => sAst({ id: a.id, type: a.type, label: a.label, amountFen: yuanToFen(a.amountYuan), liquid: a.availabilityKnown && !!a.availableDate && a.availableDate <= snap.asOfDate, ownership: a.ownership, realizableAmountFen: yuanToFen(a.realizableAmountYuan || a.amountYuan), availableDate: a.availabilityKnown ? a.availableDate : '', availabilityKnown: a.availabilityKnown, note: a.note || '', pledged: a.pledged || false, essentialUse: a.essentialUse || false }))
     localStorage.removeItem(DRAFT_KEY); nav('/dashboard')
   }
 
