@@ -38,7 +38,7 @@ export default function WelcomePage() {
           { icon: '⚠️', title: '风险优先级排序', desc: '知道哪笔债务需要最先处理', path: '/risk' },
           { icon: '✅', title: '可执行行动清单', desc: '今天、本周、本月该做什么', path: '/actions' },
         ].map((f) => (
-          <button key={f.path} type="button" onClick={() => { if (!hasConsented) acceptConsent('risk_disclosure'); navigate(f.path) }}
+          <button key={f.path} type="button" onClick={() => navigate(f.path)}
                   className="apple-card flex items-center gap-4 py-4 px-5 w-full text-left cursor-pointer tap-active transition-shadow hover:shadow-md">
             <span className="text-2xl">{f.icon}</span>
             <div>

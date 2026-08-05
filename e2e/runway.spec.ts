@@ -25,6 +25,13 @@ test.describe('Runway Page', () => {
     await expect(page.locator('h1')).toContainText('不上班续航计算器')
   })
 
+  test('existing debt feature cards do not silently grant consent', async ({ page }) => {
+    await page.goto(BASE)
+    await page.getByRole('button', { name: /盘点全部债务/ }).click()
+    await expect(page).toHaveURL(`${BASE}/`)
+    await expect(page.getByRole('button', { name: '开始整理全部债务' })).toBeVisible()
+  })
+
   test('default 100k + national_urban produces result', async ({ page }) => {
     await page.goto(`${BASE}/runway`)
     // Select national_urban region
