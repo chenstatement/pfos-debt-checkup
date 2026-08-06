@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../store/AppContext'
 import { DISCLAIMER_VERSION } from '../domain/constants'
 import { RUNWAY_BASELINES } from '../data/runwayBaselines'
-import { calculateRunway, formatRunwayParts, formatMonthlySpend, validateCashInput, parseCashYuan } from '../engine/runwayCalculator'
+import { calculateRunway, formatRunwayParts, formatMonthlySpend, validateCashInput, parseCashYuan, formatRunwayDuration } from '../engine/runwayCalculator'
 import type { RunwayResult, SpendingTier } from '../engine/runwayCalculator'
+import RunwayModal from '../components/RunwayModal'
 
 const DEFAULT_CASH = '30000'
 const RUNWAY_KICKER = 'PFOS · 20秒互动测算'
@@ -30,6 +31,9 @@ export default function RunwayPage() {
   const [cashError, setCashError] = useState('')
   const [regionError, setRegionError] = useState('')
   const [hasCalculated, setHasCalculated] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+  const modalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastResultKeyRef = useRef('')
   const resultRef = useRef<HTMLDivElement>(null)
 
   const invalidate = useCallback(() => { setResult(null); setHasCalculated(false) }, [])
@@ -42,12 +46,33 @@ export default function RunwayPage() {
     if (!selectedRegionId) { setRegionError('请选择常住地区。'); return }
     const baseline = RUNWAY_BASELINES.find(b => b.id === selectedRegionId)
     if (!baseline) { setRegionError('所选地区数据不可用，请重新选择。'); return }
-    setCashError(''); setRegionError(''); setResult(calculateRunway(parseCashYuan(cashInput), baseline)); setHasCalculated(true); setShowMethodology(false)
+    setCashError(''); setRegionError('')
+    const newResult = calculateRunway(parseCashYuan(cashInput), baseline)
+    const resultKey = `${cashInput}_${selectedRegionId}`
+    setResult(newResult); setHasCalculated(true); setShowMethodology(false)
+    if (modalTimerRef.current) clearTimeout(modalTimerRef.current)
+    if (resultKey !== lastResultKeyRef.current) {
+      lastResultKeyRef.current = resultKey
+      modalTimerRef.current = setTimeout(() => setShowModal(true), 400)
+    }
   }, [cashInput, selectedRegionId])
+
+  const handleCloseModal = useCallback(() => setShowModal(false), [])
+  const handleViewCards = useCallback(() => {
+    setShowModal(false)
+    setTimeout(() => {
+      if (resultRef.current) {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        resultRef.current.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
+      }
+    }, 150)
+  }, [])
 
   const handleReset = useCallback(() => { setResult(null); setHasCalculated(false); setShowMethodology(false); setCashError(''); setRegionError('') }, [])
   const handleGoToWizard = useCallback(() => { navigate(hasValidConsent ? '/wizard' : '/') }, [hasValidConsent, navigate])
   const resultBaseline = result?.baseline ?? null
+  const normalMonths = result?.tiers.normal.runwayMonths ?? 0
+  const normalTimeDisplay = normalMonths >= 360 ? '30年以上' : formatRunwayDuration(normalMonths)
 
   useEffect(() => {
     if (hasCalculated && result && resultRef.current) {
@@ -111,6 +136,15 @@ export default function RunwayPage() {
         </div>
         <p className="text-[12px] text-center pb-1" style={{ color: '#8E8E93' }}>🔒 金额和地区只在当前页面内计算，不上传、不保存；离开或刷新页面后结果消失。</p><p className="text-[11px] text-center pb-4" style={{ color: '#8E8E93' }}>仅供18周岁以上用户体验。</p>
       </div>
+
+      {showModal && result && (
+        <RunwayModal
+          normalMonths={normalMonths}
+          timeDisplay={normalTimeDisplay}
+          onClose={handleCloseModal}
+          onViewCards={handleViewCards}
+        />
+      )}
     </div>
   )
 }
