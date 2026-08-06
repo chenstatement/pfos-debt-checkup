@@ -13,9 +13,9 @@ const RUNWAY_TITLE = '不上班能过多久测算'
 const TIER_ORDER: SpendingTier[] = ['flat', 'frugal', 'normal', 'comfortable', 'luxury']
 const GROUP_ORDER = ['一线城市', '新一线城市', '华东', '西北', '东北', '西南', '华南', '华中', '全国'] as const
 const TIER_STYLES: Record<SpendingTier, { color: string; tint: string }> = {
-  flat: { color: '#007AFF', tint: 'rgba(0,122,255,0.04)' },
+  flat: { color: '#1C1C1E', tint: 'transparent' },
   frugal: { color: '#1C1C1E', tint: 'transparent' },
-  normal: { color: '#1C1C1E', tint: 'transparent' },
+  normal: { color: '#007AFF', tint: 'rgba(0,122,255,0.04)' },
   comfortable: { color: '#1C1C1E', tint: 'transparent' },
   luxury: { color: '#1C1C1E', tint: 'transparent' },
 }
@@ -117,7 +117,7 @@ export default function RunwayPage() {
               <p className="text-[12px] font-medium tracking-wide" style={{ color: '#8E8E93' }}>{resultBaseline.resultLabel}</p>
               <h3 className="text-[22px] font-bold tracking-tight" style={{ color: '#1C1C1E' }}>你为自己攒下了一段选择时间。</h3>
             </div>
-            <div className="space-y-3">{TIER_ORDER.map(tier => { const t = result.tiers[tier]; const style = TIER_STYLES[tier]; const isFlat = tier === 'flat'; const parts = formatRunwayParts(t.runwayMonths); return <div key={tier} className="apple-card flex min-w-[280px] items-center justify-between gap-3 overflow-hidden py-4 px-5" style={{ border: isFlat ? '2px solid #007AFF' : undefined, background: isFlat ? `linear-gradient(135deg, #FFFFFF 0%, ${style.tint} 100%)` : undefined, boxShadow: isFlat ? '0 4px 16px rgba(0,122,255,0.10)' : undefined }}><div className="min-w-0 flex-1"><p className="text-[15px] font-bold" style={{ color: style.color }}>{t.label}</p><p className="mt-1 text-[12px] leading-relaxed" style={{ color: '#6E6E73' }}>{formatMonthlySpend(t.monthlyFen)} · {t.coefficient}</p></div><div className="w-[92px] shrink-0 text-center tabular-nums" style={{ color: style.color }}><p className="text-[23px] font-bold leading-[1.05] tracking-tight whitespace-nowrap">{parts.years}</p><p className="mt-1 text-[19px] font-semibold leading-[1.05] whitespace-nowrap">{parts.months}</p></div></div> })}</div>
+            <div className="space-y-3">{TIER_ORDER.map(tier => { const t = result.tiers[tier]; const style = TIER_STYLES[tier]; const isNormal = tier === 'normal'; const parts = formatRunwayParts(t.runwayMonths); return <div key={tier} className="apple-card flex min-w-[280px] items-center justify-between gap-3 overflow-hidden py-4 px-5" style={{ border: isNormal ? '2px solid #007AFF' : undefined, background: isNormal ? `linear-gradient(135deg, #FFFFFF 0%, ${style.tint} 100%)` : undefined, boxShadow: isNormal ? '0 4px 16px rgba(0,122,255,0.10)' : undefined }}><div className="min-w-0 flex-1"><p className="text-[15px] font-bold" style={{ color: style.color }}>{t.label}</p><p className="mt-1 text-[12px] leading-relaxed" style={{ color: '#6E6E73' }}>{formatMonthlySpend(t.monthlyFen)} · {t.coefficient}</p></div><div className="w-[92px] shrink-0 text-center tabular-nums" style={{ color: style.color }}><p className="text-[23px] font-bold leading-[1.05] tracking-tight whitespace-nowrap">{parts.years}</p><p className="mt-1 text-[19px] font-semibold leading-[1.05] whitespace-nowrap">{parts.months}</p></div></div> })}</div>
             <div className="apple-card space-y-2"><p className="text-[14px]" style={{ color: '#1C1C1E' }}>按“正常过”口径，你攒下的时间约为 <span className="font-bold" style={{ color: '#007AFF' }}>{result.restComparison.days.toLocaleString('zh-CN')} 天</span>。</p><p className="text-[12px] leading-relaxed" style={{ color: '#6E6E73' }}>以全国城镇职工加权平均全年实际休息中位值 100 天作对比，相当于约 {result.restComparison.medianYears.toFixed(1)} 个“全年休息年”。</p></div>
           </div>}
         </div>
