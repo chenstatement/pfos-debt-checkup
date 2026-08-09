@@ -108,7 +108,9 @@ export async function exportDnosHandoff(
   if (!isNonNegativeInteger(input.profile.availableCashFen)) {
     return exportError('AVAILABLE_CASH_REQUIRED', '缺少可用现金数据，无法形成可复核的交接包。', ['profile.availableCashFen'])
   }
-  if (!isNonNegativeInteger(input.profile.essentialMonthlyExpenseFen)) {
+  const derivedNecessaryExpense = input.profile.essentialMonthlyExpenseFen ??
+    input.expenses.filter((expense) => expense.essential !== false).reduce((sum, expense) => sum + toFen(expense.amountFen), 0)
+  if (!isNonNegativeInteger(derivedNecessaryExpense)) {
     return exportError('ESSENTIAL_EXPENSE_REQUIRED', '缺少必要支出数据，无法形成可持续性基线。', ['profile.essentialMonthlyExpenseFen'])
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dataAsOf)) {
@@ -126,7 +128,7 @@ export async function exportDnosHandoff(
     input.incomes.filter((income) => income.recurring !== false).reduce((sum, income) => sum + toFen(income.amountFen), 0)
   const variableIncome = toFen(input.profile.variableMonthlyIncomeFen) ||
     input.incomes.filter((income) => income.recurring === false).reduce((sum, income) => sum + toFen(income.amountFen), 0)
-  const necessaryExpense = toFen(input.profile.essentialMonthlyExpenseFen)
+  const necessaryExpense = toFen(derivedNecessaryExpense)
   const availableCash = toFen(input.profile.availableCashFen)
   const monthlyDebtDue = activeDebts.reduce((sum, debt) => sum + toFen(debt.monthlyPaymentFen ?? debt.currentAmountDueFen), 0)
   const incomeStatus = stableIncome > 0

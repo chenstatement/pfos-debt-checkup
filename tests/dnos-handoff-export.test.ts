@@ -1,4 +1,8 @@
 import { readFileSync } from 'node:fs'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { DebtAccount, FinancialProfile } from '../src/domain/types'
 import { exportDnosHandoff, type PfosDnosExporterInput } from '../src/domain/dnosHandoff/exporter'
@@ -31,6 +35,15 @@ describe('PFOS DNOS de-identified exporter', () => {
     expect(result.package.debts).toHaveLength(1)
     expect(result.package.payload_hash_sha256).toMatch(/^[a-f0-9]{64}$/)
     expect(result.package.debts[0].creditor_ref).toBe('CREDITOR_001')
+    expect(Object.keys(result.package).sort()).toEqual([
+      'assets', 'cashflow', 'consent', 'debts', 'exported_at', 'missing_fields', 'package_id',
+      'payload_hash_sha256', 'pii_exclusion_confirmed', 'risk_codes', 'schema_version',
+      'source_app', 'source_app_version', 'source_rule_version', 'subject_ref',
+    ].sort())
+    expect(Object.keys(result.package.debts[0]).sort()).toEqual([
+      'annual_rate_bps', 'balance_fen', 'creditor_ref', 'debt_ref', 'debt_type',
+      'delinquency_days', 'guaranteed', 'monthly_due_fen', 'secured',
+    ].sort())
   })
 
   it('maps same and different creditor names only to local references', async () => {
@@ -51,9 +64,35 @@ describe('PFOS DNOS de-identified exporter', () => {
     expect(result.package.assets).toEqual({ liquid_assets_fen: 900000, essential_assets_fen: 1000000, pledged_assets_fen: 1000000 })
     expect(result.package.risk_codes).toEqual(expect.arrayContaining(['DEBT_OVERDUE', 'COLLATERAL_OR_GUARANTEE']))
     expect(result.json).not.toContain('测试银行')
+    expect(result.json).not.toContain('13800138000')
+    expect(result.json).not.toContain('张三')
     expect(result.json).not.toContain('creditorName')
     expect(result.json).not.toContain('userNote')
     expect(result.json).not.toContain('communications')
+  })
+
+  it('roundtrips the PFOS export through the DNOS main-process validator', async () => {
+    const result = await exportDnosHandoff(input({ debts: [debt({ userNote: '客户手机号 13800138000，姓名张三' })] }), {
+      packageId: '1c89992a-cbd1-4bc0-a8d2-12ad1193e315',
+      exportedAt: '2026-08-09T08:00:00+08:00',
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    const require = createRequire(import.meta.url)
+    const { validateHandoffFile } = require(resolve(process.cwd(), '..', 'DNOS协商决策', 'electron/services/handoff-import.cjs')) as {
+      validateHandoffFile: (filePath: string) => Promise<{ status: string; digest_match: boolean | null; validation_issues: string[] }>
+    }
+    const temp = await mkdtemp(resolve(tmpdir(), 'pfos-dnos-roundtrip-'))
+    const filePath = resolve(temp, 'handoff.json')
+    try {
+      await writeFile(filePath, result.json)
+      const imported = await validateHandoffFile(filePath)
+      expect(imported.status).toBe('accepted')
+      expect(imported.digest_match).toBe(true)
+      expect(JSON.stringify(imported)).not.toContain('13800138000')
+    } finally {
+      await rm(temp, { recursive: true, force: true })
+    }
   })
 
   it('returns an explainable error without producing output when consent or required fields are absent', async () => {
