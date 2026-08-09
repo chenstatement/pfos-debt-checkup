@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../store/AppContext'
 import { DISCLAIMER_VERSION } from '../domain/constants'
+import { exportDnosHandoff } from '../domain/dnosHandoff/exporter'
 
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { data, exportAllData, resetAll } = useApp()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [showDnosExportConfirm, setShowDnosExportConfirm] = useState(false)
+  const [dnosExportError, setDnosExportError] = useState<string | null>(null)
 
   const handleExport = () => {
     const json = exportAllData()
@@ -18,6 +21,24 @@ export default function SettingsPage() {
     a.download = `PFOS_data_${data.dataAsOf || 'export'}.json`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  const handleDnosExport = async () => {
+    const result = await exportDnosHandoff(data)
+    if (!result.ok) {
+      setDnosExportError(`${result.message}${result.missingFields.length > 0 ? `（缺少：${result.missingFields.join('、')}）` : ''}`)
+      setShowDnosExportConfirm(false)
+      return
+    }
+    const blob = new Blob([result.json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `PFOS_DNOS_handoff_${data.dataAsOf || new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    setDnosExportError(null)
+    setShowDnosExportConfirm(false)
   }
 
   const handleDelete = () => {
@@ -83,6 +104,27 @@ export default function SettingsPage() {
         >
           导出所有数据 (JSON)
         </button>
+
+        <button
+          onClick={() => { setDnosExportError(null); setShowDnosExportConfirm(true) }}
+          className="w-full py-3 border border-pfos-accent text-pfos-accent rounded-xl font-medium tap-active"
+        >
+          导出 DNOS 脱敏交接包
+        </button>
+
+        {showDnosExportConfirm && (
+          <div role="dialog" aria-label="确认导出 DNOS 脱敏交接包" className="bg-pfos-surface rounded-xl p-4 border border-pfos-accent space-y-3">
+            <p className="text-sm font-semibold text-pfos-text">导出前确认用途与字段范围</p>
+            <p className="text-xs text-pfos-text-muted">交接包仅用于本地 DNOS 协商决策工作台，将排除姓名、联系方式、证件号、账户号、债权方名称和沟通原文。</p>
+            <p className="text-xs text-pfos-text-muted">确认后文件会下载到本机，不会自动上传；不合格或未授权时不会生成文件。</p>
+            <div className="flex gap-2">
+              <button onClick={handleDnosExport} className="flex-1 py-2 bg-pfos-accent text-white rounded-lg text-sm font-medium">确认并导出</button>
+              <button onClick={() => setShowDnosExportConfirm(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">取消</button>
+            </div>
+          </div>
+        )}
+
+        {dnosExportError && <p role="alert" className="text-xs text-red-600">{dnosExportError}</p>}
 
         {!showDeleteConfirm ? (
           <button
