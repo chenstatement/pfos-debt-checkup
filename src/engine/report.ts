@@ -168,38 +168,41 @@ function generateSummary(
 ): string {
   const parts: string[] = []
 
-  // ── Overall verdict: risk level + cashflow projection ──────
+  // ── Gap date formatting ────────────────────────────────────
+  const hasGap = nc.runwayDays < nc.horizonDays
+  const gapDateLabel = nc.firstGapDate
+    ? `${parseInt(nc.firstGapDate.slice(5, 7), 10)}月${parseInt(nc.firstGapDate.slice(8, 10), 10)}日`
+    : ''
+  const thisMonth = new Date().toISOString().slice(0, 7)
+  const gapIsThisMonth = nc.firstGapDate?.slice(0, 7) === thisMonth
+  // "当月8月5日" or just "10月15日"
+  const gapFullLabel = gapIsThisMonth ? `当月${gapDateLabel}` : gapDateLabel
+
+  // ── Overall verdict ────────────────────────────────────────
   const urgentCount = assessments.filter(a => a.riskLevel === 'urgent').length
   const highCount = assessments.filter(a => a.riskLevel === 'high').length
-  const hasGap = nc.runwayDays < nc.horizonDays
-
-  // Gap month label
-  const thisMonth = new Date().toISOString().slice(0, 7) // "2026-08"
-  const gapMonth = nc.firstGapDate?.slice(0, 7) || ''
-  const gapMonthLabel = gapMonth === thisMonth ? '当月' : `${parseInt(gapMonth.slice(5, 7), 10)}月`
 
   if (urgentCount > 0) {
     parts.push(`当前有 ${urgentCount} 笔债务处于紧急状态，需要立即关注。`)
   } else if (highCount > 0) {
     parts.push(`当前有 ${highCount} 笔债务处于高风险状态，建议尽快处理。`)
   } else if (hasGap) {
-    parts.push(`按当前现金流推演（含资产变现），${gapMonthLabel}将出现 ¥${formatFenAsYuan(nc.firstGapAmountFen || 0)} 资金缺口，需提前安排。`)
+    parts.push(`按当前现金流推演（含资产变现），${gapFullLabel}将出现 ¥${formatFenAsYuan(nc.firstGapAmountFen || 0)} 缺口，需提前安排。`)
   } else {
     parts.push('当前债务状况总体可控，保持按时记录和还款。')
   }
 
-  // ── Cashflow detail ────────────────────────────────────────
+  // ── Cashflow projection detail ─────────────────────────────
   if (hasGap) {
-    const gapSummary = `${gapMonthLabel}缺口 ${nc.firstGapDate}，金额 ¥${formatFenAsYuan(nc.firstGapAmountFen || 0)}`
-    // Pad the verdict-only case (which already includes gap info)
+    // If verdict already covers risk, add gap detail separately
     if (urgentCount > 0 || highCount > 0) {
-      parts.push(gapSummary + '。')
+      parts.push(`${gapFullLabel}缺口约 ¥${formatFenAsYuan(nc.firstGapAmountFen || 0)}，需提前安排。`)
     }
   } else {
     parts.push('90天内现金流（含资产变现）可覆盖全部还款义务。')
   }
 
-  // ── Structural health — keep as context, not verdict ──────
+  // ── Structural health: monthly obligation context ──────────
   if (agg.monthlyBalanceFen < 0) {
     parts.push(`月度还款义务合计 ¥${formatFenAsYuan(agg.totalMonthlyDebtFen)}，超出固定收入。`)
   }
