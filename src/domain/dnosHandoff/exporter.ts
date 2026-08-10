@@ -64,7 +64,34 @@ function toFen(value: number | undefined): number {
 }
 
 function getActiveDebts(debts: DebtAccount[]): DebtAccount[] {
-  return debts.filter((debt) => debt.deletedAt === undefined && debt.status !== 'closed')
+  const active = debts.filter((debt) => debt.deletedAt === undefined && debt.status !== 'closed')
+  // Deduplicate by id — keep the latest version (by updatedAt, fallback to createdAt)
+  const seen = new Map<string, DebtAccount>()
+  for (const debt of active) {
+    const existing = seen.get(debt.id)
+    if (!existing) {
+      seen.set(debt.id, debt)
+    } else {
+      const existingDate = existing.updatedAt || existing.createdAt
+      const currentDate = debt.updatedAt || debt.createdAt
+      if (currentDate > existingDate) {
+        seen.set(debt.id, debt)
+      }
+    }
+  }
+  return [...seen.values()]
+}
+
+/** Debt types where annual_rate_bps is expected to be present */
+const FORMAL_LOAN_TYPES: DebtAccount['debtType'][] = [
+  'credit_card', 'bank_consumer_loan', 'online_microloan', 'installment',
+]
+
+/** Mirror computeAggregates: use outstandingPrincipalFen; fall back to currentAmountDueFen when zero */
+function getDebtBalance(debt: DebtAccount): number {
+  const principal = toFen(debt.outstandingPrincipalFen)
+  if (principal > 0) return principal
+  return toFen(debt.currentAmountDueFen)
 }
 
 function mapDebtType(type: DebtAccount['debtType']): DnosHandoffDebt['debt_type'] {
@@ -143,13 +170,13 @@ export async function exportDnosHandoff(
   const debts: DnosHandoffDebt[] = activeDebts.map((debt, index) => {
     const creditorName = debt.creditorName.trim()
     if (!creditorRefs.has(creditorName)) creditorRefs.set(creditorName, `CREDITOR_${String(creditorRefs.size + 1).padStart(3, '0')}`)
-    if (debt.annualRateBps === undefined) missingFields.push(`debts.${index}.annual_rate_bps`)
+    if (FORMAL_LOAN_TYPES.includes(debt.debtType) && debt.annualRateBps === undefined) missingFields.push(`debts.${index}.annual_rate_bps`)
     if (debt.status === 'overdue' && !debt.overdueSince) missingFields.push(`debts.${index}.overdue_since`)
     return {
       debt_ref: `DEBT_${String(index + 1).padStart(3, '0')}`,
       creditor_ref: creditorRefs.get(creditorName) || `CREDITOR_${String(index + 1).padStart(3, '0')}`,
       debt_type: mapDebtType(debt.debtType),
-      balance_fen: toFen(debt.outstandingPrincipalFen),
+      balance_fen: getDebtBalance(debt),
       monthly_due_fen: toFen(debt.monthlyPaymentFen ?? debt.currentAmountDueFen),
       annual_rate_bps: debt.annualRateBps ?? null,
       delinquency_days: debt.status === 'overdue' && debt.overdueSince ? daysBetween(debt.overdueSince, input.dataAsOf) : 0,
