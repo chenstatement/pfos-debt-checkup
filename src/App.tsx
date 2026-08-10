@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useApp } from './store/AppContext'
+import { useApp, isActiveDebt } from './store/AppContext'
 import { generateFullReport, type ReportInput } from './engine/report'
 import ConsentGuard from './components/ConsentGuard'
 

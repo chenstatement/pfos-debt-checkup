@@ -3,7 +3,7 @@ import React, {
   type ReactNode,
 } from 'react'
 import type { DebtAccount, FinancialProfile, ConsentRecord, ISODate, ISODateTime, MoneyFen } from '../domain/types'
-import { DISCLAIMER_VERSION } from '../domain/constants'
+import { DISCLAIMER_VERSION, isActiveDebt } from '../domain/constants'
 
 // ── Application-level data ─────────────────────────────────
 
@@ -148,9 +148,8 @@ interface AppContextType {
   resetAll: () => void
 }
 
-export function isActiveDebt(d: DebtAccount): boolean {
-  return d.deletedAt === undefined && d.status !== 'closed'
-}
+// isActiveDebt is now defined in domain/constants.ts and re-exported for backward compat
+export { isActiveDebt }
 
 const AppContext = createContext<AppContextType | null>(null)
 

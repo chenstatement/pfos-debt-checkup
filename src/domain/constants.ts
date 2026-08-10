@@ -119,6 +119,15 @@ export const DISCLAIMER_TEXT = `PFOS（Personal Financial Operating System）是
 
 本工具不会自动联系金融机构、不承诺协商结果、不代替用户作出任何具有法律或财务后果的决定。`
 
+// ── Active Debt Predicate ───────────────────────────────────
+
+import type { DebtAccount } from './types'
+
+/** A debt is "active" if it has not been deleted or closed. */
+export function isActiveDebt(d: DebtAccount): boolean {
+  return d.deletedAt === undefined && d.status !== 'closed'
+}
+
 // ── Negotiation Checklist Template ─────────────────────────
 
 export const NEGOTIATION_CHECKLIST_TEMPLATE = [

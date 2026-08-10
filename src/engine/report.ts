@@ -9,7 +9,7 @@ import { generateNowcast, buildForecastSnapshot, type NowcastResult } from './no
 import { assessDebtRisk } from './riskEngine'
 import { assessFinancialData } from './dataQuality'
 import { computeAggregates, generateActionPlan } from './actionPlan'
-import { RULE_VERSION, RISK_LEVEL_INFO, PRIORITY_INFO } from '../domain/constants'
+import { RULE_VERSION, RISK_LEVEL_INFO, PRIORITY_INFO, isActiveDebt } from '../domain/constants'
 
 export interface ReportInput {
   profile: Partial<FinancialProfile>
@@ -59,7 +59,7 @@ export function generateFullReport(input: ReportInput): FullReport {
     startDate,
   } = input
 
-  const activeDebts = debts.filter(d => d.deletedAt === undefined && d.status !== 'closed')
+  const activeDebts = debts.filter(isActiveDebt)
   const asOfDate = profile.dataAsOf || startDate || new Date().toISOString().split('T')[0]
 
   // ── CR-02: Ensure profile amounts are represented as income/expense events ──

@@ -18,7 +18,7 @@ import type {
   RiskWarning, RiskEngineInput, RiskEngineOutput,
   FinancialProfile, DebtAccount, ForecastSnapshot,
 } from '../domain/types'
-import { RULE_VERSION, THRESHOLDS } from '../domain/constants'
+import { RULE_VERSION, THRESHOLDS, isActiveDebt } from '../domain/constants'
 
 // ── Rule Definitions (R01-R08) ────────────────────────────
 
@@ -186,7 +186,7 @@ export function assessDebtRisk(input: RiskEngineInput): RiskEngineOutput {
   const availableCashFen = profile.availableCashFen
   const context: RuleContext = { asOfDate, profile, forecast, availableCashFen }
 
-  const activeDebts = debts.filter(d => d.deletedAt === undefined)
+  const activeDebts = debts.filter(isActiveDebt)
   const assessments: RiskAssessment[] = []
   const warnings: RiskWarning[] = []
   const allActionCodes = new Set<ActionCode>()

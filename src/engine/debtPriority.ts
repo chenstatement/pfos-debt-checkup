@@ -13,6 +13,7 @@
  */
 
 import type { DebtAccount, PriorityLevel, RiskAssessment } from '../domain/types'
+import { isActiveDebt } from '../domain/constants'
 
 interface ScoredDebt extends DebtAccount {
   assessment: RiskAssessment
@@ -31,7 +32,7 @@ export function sortDebtsByPriority(
   const priorityOrder: PriorityLevel[] = ['P0', 'P1', 'P2', 'P3']
 
   const scored: ScoredDebt[] = debts
-    .filter(d => d.deletedAt === undefined)
+    .filter(isActiveDebt)
     .map(debt => {
       const assessment = assessmentMap.get(debt.id)
       if (!assessment) {

@@ -30,6 +30,10 @@ export default function DebtListPage() {
     ? sortDebtsByPriority(activeDebts, assessments)
     : activeDebts.map(d => ({ ...d, assessment: null as any, _sortKey: 999 }))
 
+  // Compute summary totals
+  const totalDebtFen = activeDebts.reduce((sum, d) => sum + d.outstandingPrincipalFen, 0)
+  const availableCashFen = data.profile.availableCashFen || 0
+
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-3">
       <StickyHeader title="债务清单" />
@@ -38,6 +42,24 @@ export default function DebtListPage() {
         <button onClick={() => navigate('/wizard')} className="text-sm text-pfos-accent font-medium">
           + 新增
         </button>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="apple-card text-center py-4 px-3 space-y-1">
+          <p className="text-[12px] text-pfos-text-muted">总负债</p>
+          <p className="text-xl font-bold" style={{ color: showAmounts ? '#FF3B30' : '#1C1C1E' }}>
+            {showAmounts ? `¥${formatFenAsYuan(totalDebtFen)}` : '¥****'}
+          </p>
+          <p className="text-[11px] text-pfos-text-muted">{activeDebts.length} 笔债务</p>
+        </div>
+        <div className="apple-card text-center py-4 px-3 space-y-1">
+          <p className="text-[12px] text-pfos-text-muted">可用资金</p>
+          <p className="text-xl font-bold" style={{ color: showAmounts ? '#34C759' : '#1C1C1E' }}>
+            {showAmounts ? `¥${formatFenAsYuan(availableCashFen)}` : '¥****'}
+          </p>
+          <p className="text-[11px] text-pfos-text-muted">当前可动用现金</p>
+        </div>
       </div>
 
       <button
