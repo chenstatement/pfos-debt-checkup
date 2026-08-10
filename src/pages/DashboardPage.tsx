@@ -488,10 +488,17 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
         </nav>
 
         {/* ── Report meta ──────────────────────────────────────── */}
-        <p className="text-center text-[11px] mb-4" style={{ color: '#8E8E93' }}>
-          已分析 {activeDebtCount} 笔债务　·　数据截止 {data.dataAsOf}
-          {dataQuality.score != null && `　·　数据可信度 ${dataQuality.score}%`}
-        </p>
+        {(() => {
+          const daysSince = Math.max(0, Math.floor((Date.now() - new Date(data.dataAsOf + 'T00:00:00+08:00').getTime()) / 86400000))
+          const isStale = daysSince > 7
+          return (
+            <p className="text-center text-[11px] mb-4" style={{ color: isStale ? '#FF9500' : '#8E8E93' }}>
+              已分析 {activeDebtCount} 笔债务　·　数据截止 {data.dataAsOf}（{daysSince === 0 ? '今天' : `${daysSince}天前`}）
+              {dataQuality.score != null && `　·　数据可信度 ${dataQuality.score}%`}
+              {isStale && <span className="block mt-1">债务状况是动态变化的，建议更新数据后重新生成报告</span>}
+            </p>
+          )
+        })()}
 
         {/* ════════════════════════════════════════════════════════ */}
         {/*  PAPER (white card containing all 6 sections)           */}
