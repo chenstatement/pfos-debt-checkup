@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../store/AppContext'
 import StickyHeader from '../components/StickyHeader'
 import { formatFenAsYuan } from '../domain/money'
-import { DEBT_TYPE_LABELS } from '../domain/constants'
+import { DEBT_TYPE_LABELS, isActiveDebt } from '../domain/constants'
 import { sortDebtsByPriority } from '../engine/debtPriority'
 import { generateFullReport } from '../engine/report'
 import type { DebtAccount } from '../domain/types'
@@ -30,8 +30,11 @@ export default function DebtListPage() {
     ? sortDebtsByPriority(activeDebts, assessments)
     : activeDebts.map(d => ({ ...d, assessment: null as any, _sortKey: 999 }))
 
-  // Compute summary totals
-  const totalDebtFen = activeDebts.reduce((sum, d) => sum + d.outstandingPrincipalFen, 0)
+  // Compute summary totals — match computeAggregates logic
+  const debtsForAggregation = data.debts.filter(isActiveDebt)
+  const totalDebtFen = debtsForAggregation.reduce((sum, d) => {
+    return sum + (d.outstandingPrincipalFen > 0 ? d.outstandingPrincipalFen : d.currentAmountDueFen)
+  }, 0)
   const availableCashFen = data.profile.availableCashFen || 0
 
   return (
