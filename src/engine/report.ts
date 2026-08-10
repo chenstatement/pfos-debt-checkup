@@ -168,33 +168,36 @@ function generateSummary(
 ): string {
   const parts: string[] = []
 
-  // Overall — consider both individual debt risk AND cashflow health
+  // ── Overall verdict: risk level + cashflow projection ──────
   const urgentCount = assessments.filter(a => a.riskLevel === 'urgent').length
   const highCount = assessments.filter(a => a.riskLevel === 'high').length
-  const hasCashflowGap = agg.monthlyBalanceFen < 0
+  const hasGap = nc.runwayDays < nc.horizonDays
 
   if (urgentCount > 0) {
     parts.push(`当前有 ${urgentCount} 笔债务处于紧急状态，需要立即关注。`)
   } else if (highCount > 0) {
     parts.push(`当前有 ${highCount} 笔债务处于高风险状态，建议尽快处理。`)
-  } else if (hasCashflowGap) {
-    parts.push(`当前月度收支入不敷出，需优先压缩支出或增加收入。`)
+  } else if (hasGap) {
+    parts.push(`按当前现金流推演，${nc.firstGapDate} 将出现资金缺口，需提前安排。`)
   } else {
     parts.push('当前债务状况总体可控，保持按时记录和还款。')
   }
 
-  // Cashflow — only show gap detail if not already covered by verdict
-  if (hasCashflowGap) {
-    parts.push(`每月收支缺口 ¥${formatFenAsYuan(Math.abs(agg.monthlyBalanceFen))}。`)
+  // ── Cashflow projection (nowcast-based) ────────────────────
+  if (hasGap) {
+    parts.push(`首次缺口金额约 ¥${formatFenAsYuan(nc.firstGapAmountFen || 0)}。`)
+  } else {
+    parts.push(`90天内现金流可覆盖全部还款义务。`)
   }
 
+  // ── Structural health (aggregate-based, but framed as context) ──
+  if (agg.monthlyBalanceFen < 0) {
+    parts.push(`月度还款义务合计 ¥${formatFenAsYuan(agg.totalMonthlyDebtFen)}，超出固定收入。`)
+  }
+
+  // ── Overdue ────────────────────────────────────────────────
   if (agg.hasAnyOverdue) {
     parts.push(`已有 ${agg.overdueCount} 笔债务逾期，最长 ${agg.maxOverdueDays} 天。`)
-  }
-
-  // Nowcast
-  if (nc.runwayDays < nc.horizonDays) {
-    parts.push(`按当前数据推演，${nc.firstGapDate} 可能出现首次资金缺口。`)
   }
 
   return parts.join('')
