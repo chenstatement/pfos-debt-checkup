@@ -10,6 +10,7 @@ import { assessDebtRisk } from './riskEngine'
 import { assessFinancialData } from './dataQuality'
 import { computeAggregates, generateActionPlan } from './actionPlan'
 import { RULE_VERSION, RISK_LEVEL_INFO, PRIORITY_INFO, isActiveDebt } from '../domain/constants'
+import { formatFenAsYuan } from '../domain/money'
 
 export interface ReportInput {
   profile: Partial<FinancialProfile>
@@ -167,21 +168,24 @@ function generateSummary(
 ): string {
   const parts: string[] = []
 
-  // Overall
+  // Overall — consider both individual debt risk AND cashflow health
   const urgentCount = assessments.filter(a => a.riskLevel === 'urgent').length
   const highCount = assessments.filter(a => a.riskLevel === 'high').length
+  const hasCashflowGap = agg.monthlyBalanceFen < 0
 
   if (urgentCount > 0) {
     parts.push(`当前有 ${urgentCount} 笔债务处于紧急状态，需要立即关注。`)
   } else if (highCount > 0) {
     parts.push(`当前有 ${highCount} 笔债务处于高风险状态，建议尽快处理。`)
+  } else if (hasCashflowGap) {
+    parts.push(`当前月度收支入不敷出，需优先压缩支出或增加收入。`)
   } else {
     parts.push('当前债务状况总体可控，保持按时记录和还款。')
   }
 
-  // Cashflow
-  if (agg.monthlyBalanceFen < 0) {
-    parts.push(`每月收支缺口 ¥${(Math.abs(agg.monthlyBalanceFen) / 100).toFixed(2)}。`)
+  // Cashflow — only show gap detail if not already covered by verdict
+  if (hasCashflowGap) {
+    parts.push(`每月收支缺口 ¥${formatFenAsYuan(Math.abs(agg.monthlyBalanceFen))}。`)
   }
 
   if (agg.hasAnyOverdue) {

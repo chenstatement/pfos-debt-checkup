@@ -62,7 +62,12 @@ export function computeAggregates(
     .filter(e => e.essential !== false)
     .reduce((s, e) => s + (e.amountFen ?? Math.round((e.amount || 0) * 100)), 0)
 
-  const totalMonthlyDebtFen = debts.reduce((s, d) => s + d.currentAmountDueFen, 0)
+  const totalMonthlyDebtFen = debts.reduce((s, d) => {
+    // Prefer monthlyPaymentFen (月供); for balloon debts with no monthly payment, count 0
+    if (d.monthlyPaymentFen > 0) return s + d.monthlyPaymentFen
+    if (d.repaymentMethod === 'balloon') return s + 0
+    return s + d.currentAmountDueFen
+  }, 0)
   const monthlyBalanceFen = totalMonthlyIncomeFen - totalMonthlyExpenseFen - totalMonthlyDebtFen
   const totalDebtPrincipalFen = debts.reduce((s, d) => {
     // Use outstanding principal if available; otherwise fall back to current amount due
