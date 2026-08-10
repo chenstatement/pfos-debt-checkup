@@ -34,7 +34,7 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `PFOS_DNOS_handoff_${data.dataAsOf || new Date().toISOString().slice(0, 10)}.json`
+    a.download = `PFOS_DNOS_handoff_${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
     setDnosExportError(null)

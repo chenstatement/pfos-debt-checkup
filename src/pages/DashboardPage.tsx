@@ -375,6 +375,16 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
   const navigate = useNavigate()
   const { data, privacyVisible, togglePrivacy, completedActions, toggleActionComplete } = useApp()
 
+  // ── Collapsible sections (02–05) ────────────────────────────
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const toggleSection = (id: string) => {
+    setCollapsed(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
   // ── Early exits ──────────────────────────────────────────────
   if (!data.consent) {
     return (
@@ -560,14 +570,23 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
 
           {/* ── 02 · 先做这三件事 ────────────────────────────────── */}
           <section className="px-5 pt-4 pb-5" style={{ borderBottom: '1px solid #F2F2F7' }}>
-            <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={() => toggleSection('02')}
+              className="flex items-center gap-2 mb-3 w-full text-left tap-active"
+            >
               <span className="text-[11px] font-extrabold tracking-wider" style={{ color: '#007AFF' }}>
                 02
               </span>
-              <h2 className="text-[17px] font-semibold tracking-[-0.02em]" style={{ color: '#1C1C1E' }}>
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] flex-1" style={{ color: '#1C1C1E' }}>
                 先做这三件事
               </h2>
-            </div>
+              <span className="text-[12px] transition-transform duration-200" style={{ color: '#8E8E93', transform: collapsed.has('02') ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                ▼
+              </span>
+            </button>
+
+            {!collapsed.has('02') && (
+            <>
             <ActionSection
               actions={actionPlan}
               completedActions={completedActions}
@@ -585,19 +604,29 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
                 查看完整行动清单 →
               </button>
             )}
+            </>
+            )}
           </section>
 
           {/* ── 03 · 未来90天资金变化 ────────────────────────────── */}
           <section className="px-5 pt-4 pb-5" style={{ borderBottom: '1px solid #F2F2F7' }}>
-            <div className="flex items-center gap-2 mb-2">
+            <button
+              onClick={() => toggleSection('03')}
+              className="flex items-center gap-2 mb-2 w-full text-left tap-active"
+            >
               <span className="text-[11px] font-extrabold tracking-wider" style={{ color: '#007AFF' }}>
                 03
               </span>
-              <h2 className="text-[17px] font-semibold tracking-[-0.02em]" style={{ color: '#1C1C1E' }}>
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] flex-1" style={{ color: '#1C1C1E' }}>
                 未来90天资金变化
               </h2>
-            </div>
+              <span className="text-[12px] transition-transform duration-200" style={{ color: '#8E8E93', transform: collapsed.has('03') ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                ▼
+              </span>
+            </button>
 
+            {!collapsed.has('03') && (
+            <>
             {/* Subtitle */}
             <p className="text-[12px] mb-3 leading-relaxed" style={{ color: '#8E8E93' }}>
               {nowcast.firstGapDate
@@ -658,19 +687,29 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
             >
               查看每日明细 →
             </button>
+            </>
+            )}
           </section>
 
           {/* ── 04 · 债务处理顺序 ────────────────────────────────── */}
           <section className="px-5 pt-4 pb-5" style={{ borderBottom: '1px solid #F2F2F7' }}>
-            <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={() => toggleSection('04')}
+              className="flex items-center gap-2 mb-3 w-full text-left tap-active"
+            >
               <span className="text-[11px] font-extrabold tracking-wider" style={{ color: '#007AFF' }}>
                 04
               </span>
-              <h2 className="text-[17px] font-semibold tracking-[-0.02em]" style={{ color: '#1C1C1E' }}>
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] flex-1" style={{ color: '#1C1C1E' }}>
                 债务处理顺序
               </h2>
-            </div>
+              <span className="text-[12px] transition-transform duration-200" style={{ color: '#8E8E93', transform: collapsed.has('04') ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                ▼
+              </span>
+            </button>
 
+            {!collapsed.has('04') && (
+            <>
             {topDebts.length === 0 ? (
               <p className="text-[13px] text-center py-4" style={{ color: '#8E8E93' }}>
                 暂无风险评估数据
@@ -693,19 +732,29 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
                 查看完整风险顺序 →
               </button>
             )}
+            </>
+            )}
           </section>
 
           {/* ── 05 · 系统为什么这样判断 ────────────────────────────── */}
           <section className="px-5 pt-4 pb-5" style={{ borderBottom: '1px solid #F2F2F7' }}>
-            <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={() => toggleSection('05')}
+              className="flex items-center gap-2 mb-3 w-full text-left tap-active"
+            >
               <span className="text-[11px] font-extrabold tracking-wider" style={{ color: '#007AFF' }}>
                 05
               </span>
-              <h2 className="text-[17px] font-semibold tracking-[-0.02em]" style={{ color: '#1C1C1E' }}>
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] flex-1" style={{ color: '#1C1C1E' }}>
                 系统为什么这样判断
               </h2>
-            </div>
+              <span className="text-[12px] transition-transform duration-200" style={{ color: '#8E8E93', transform: collapsed.has('05') ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                ▼
+              </span>
+            </button>
 
+            {!collapsed.has('05') && (
+            <>
             {/* Risk warnings */}
             {riskWarnings.length > 0 && (
               <div className="grid gap-2 mb-3">
@@ -772,6 +821,8 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
               <p className="text-[12px] text-center mt-3" style={{ color: '#8E8E93' }}>
                 基于当前数据，系统通过规则引擎（R01-R08）评估风险等级和优先级。
               </p>
+            )}
+            </>
             )}
           </section>
 
