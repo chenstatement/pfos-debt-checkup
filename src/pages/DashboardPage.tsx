@@ -390,7 +390,7 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center" style={{ background: '#F2F2F7' }}>
         <p className="text-[#8E8E93] mb-6 text-[15px]">请先完成数据录入</p>
-        <button onClick={() => navigate('/')} className="apple-btn apple-btn-primary">前往录入</button>
+        <button onClick={() => navigate('/pfos')} className="apple-btn apple-btn-primary">前往录入</button>
       </div>
     )
   }
@@ -468,7 +468,7 @@ export default function DashboardPage({ report }: { report: FullReport | null; a
         >
           <div className="flex justify-between items-center">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/pfos')}
               className="text-[15px] font-medium"
               style={{ color: '#007AFF' }}
             >

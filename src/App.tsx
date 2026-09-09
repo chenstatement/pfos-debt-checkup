@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AppProvider } from './store/AppContext'
 import { useApp, isActiveDebt } from './store/AppContext'
 import { generateFullReport, type ReportInput } from './engine/report'
 import ConsentGuard from './components/ConsentGuard'
@@ -17,6 +18,7 @@ import ActionCenterPage from './pages/ActionCenterPage'
 import NegotiationPage from './pages/NegotiationPage'
 import SettingsPage from './pages/SettingsPage'
 import DisclaimerFooter from './components/DisclaimerFooter'
+import PiosHome from './pages/PiosHome'
 
 function GuardedRoutes() {
   const { data } = useApp()
@@ -51,19 +53,33 @@ function GuardedRoutes() {
 }
 
 export default function App() {
+  const location = useLocation()
+  useEffect(() => {
+    const isPortal = location.pathname === '/'
+    document.title = isPortal ? '陈述式科技 · PIOS 个人系统' : 'PFOS 债务体检'
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isPortal ? '#050E17' : '#F2F2F7')
+  }, [location.pathname])
   return (
-    <div className="min-h-screen bg-pfos-bg">
+    <>
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
-        <Route path="/wizard" element={
-          <ConsentGuard><WizardPage /></ConsentGuard>
-        } />
-        <Route path="/runway" element={<RunwayPage />} />
-        <Route path="/*" element={
-          <ConsentGuard><GuardedRoutes /></ConsentGuard>
-        } />
+        <Route path="/" element={<PiosHome />} />
+        <Route path="/*" element={<PfosRoutes />} />
       </Routes>
-      <DisclaimerFooter />
-    </div>
+    </>
+  )
+}
+function PfosRoutes() {
+  return (
+    <AppProvider>
+      <div className="min-h-screen bg-pfos-bg">
+        <Routes>
+          <Route path="/pfos" element={<WelcomePage />} />
+          <Route path="/wizard" element={<ConsentGuard><WizardPage /></ConsentGuard>} />
+          <Route path="/runway" element={<RunwayPage />} />
+          <Route path="/*" element={<ConsentGuard><GuardedRoutes /></ConsentGuard>} />
+        </Routes>
+        <DisclaimerFooter />
+      </div>
+    </AppProvider>
   )
 }

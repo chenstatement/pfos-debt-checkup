@@ -13,7 +13,7 @@ export default function ConsentGuard({ children }: { children: ReactNode }) {
     !data.consent.revokedAt
 
   if (!hasValidConsent) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/pfos" replace />
   }
 
   return <>{children}</>

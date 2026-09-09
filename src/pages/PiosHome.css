@@ -1,0 +1,71 @@
+.pios-portal {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 85% 0, #132341 0, transparent 48rem), #050e17;
+  color: #f2f7fb;
+  font-size: 1rem;
+  line-height: 1.65;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+.pios-portal * { box-sizing: border-box; }
+.pios-portal a { color: inherit; text-decoration: none; }
+.pios-portal a:focus-visible { outline: 2px solid #67e8f9; outline-offset: 5px; }
+.pios-portal__shell { width: min(1180px, calc(100% - 3rem)); margin: auto; }
+.pios-portal .pios-portal__skip { position: absolute; z-index: 2; top: 1rem; left: 1rem; padding: .7rem 1rem; background: #67e8f9; color: #031018; transform: translateY(-180%); }
+.pios-portal__skip:focus { transform: none; }
+.pios-portal__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid #29404f; }
+.pios-portal__header p { margin: 0; color: #a7b8c9; font-size: .875rem; }
+.pios-portal__brand { display: inline-flex; width: min(16rem, 55vw); flex-shrink: 0; }
+.pios-portal__brand img { display: block; width: 100%; height: auto; }
+.pios-portal__intro { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.65fr); gap: 3rem; padding: 2.5rem 0; }
+.pios-portal__identity { align-self: center; padding-left: 1.1rem; border-left: 2px solid #b39aff; }
+.pios-portal__identity p { margin: .4rem 0; }
+.pios-portal__eyebrow, .pios-portal__index { margin: 0 0 .7rem; color: #67e8f9; font-size: .875rem; letter-spacing: .05em; }
+.pios-portal__identity-name { font-size: 1.8rem; font-weight: 650; }
+.pios-portal__identity-name span, .pios-portal__identity small { color: #a7b8c9; }
+.pios-portal__identity small { font-size: .875rem; }
+.pios-portal h1 { margin: 0; font-size: clamp(2rem, 3.9vw, 3.5rem); font-weight: 700; line-height: 1.25; letter-spacing: -.015em; }
+.pios-portal__lede { max-width: 42rem; margin: 1rem 0 0; color: #a7b8c9; font-size: 1rem; line-height: 1.8; }
+.pios-portal__systems { padding-bottom: 2.5rem; scroll-margin-top: 1rem; }
+.pios-portal__heading { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.1rem; padding-bottom: .9rem; border-bottom: 1px solid #29404f; }
+.pios-portal__heading h2 { margin: 0; font-size: 1.7rem; font-weight: 650; }
+.pios-portal__heading .pios-portal__index { margin-bottom: .3rem; }
+.pios-portal__heading > p { margin: 0; color: #a7b8c9; font-size: .875rem; }
+.pios-portal__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.pios-portal__card { display: flex; flex-direction: column; min-width: 0; min-height: 13rem; padding: 1.2rem; border: 1px solid #29404f; border-radius: .3rem; background: #091926; }
+.pios-portal__card:last-child { grid-column: 1 / -1; min-height: auto; }
+.pios-portal__card--featured { background: linear-gradient(145deg, #102e43, #0a1828); border-color: #406c80; }
+a.pios-portal__card { transition: border-color 160ms, background 160ms; }
+a.pios-portal__card:hover { border-color: #67e8f9; background: #133046; }
+.pios-portal__topline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; color: #a7b8c9; font-size: .875rem; }
+.pios-portal__status { color: #a7b8c9; font-size: .875rem; }
+.pios-portal__status--available { color: #67e8f9; }
+.pios-portal__card h3 { margin: 1rem 0 .6rem; font-size: 1.15rem; font-weight: 650; line-height: 1.5; }
+.pios-portal__card h3 span { display: block; color: #b8c9d9; font-size: 1rem; font-weight: 400; }
+.pios-portal__card > p { margin: 0; color: #a7b8c9; font-size: 1rem; }
+.pios-portal__link { display: block; margin-top: auto; padding-top: .9rem; color: #67e8f9; font-size: .875rem; }
+article.pios-portal__card .pios-portal__link { color: #a7b8c9; }
+.pios-portal__footer { display: flex; justify-content: space-between; gap: 1.5rem; padding: 1.25rem 0 2rem; border-top: 1px solid #29404f; color: #a7b8c9; font-size: .875rem; }
+.pios-portal__footer p { margin: 0; }
+@media (max-width: 960px) {
+  .pios-portal__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pios-portal__intro { gap: 1.5rem; }
+}
+@media (max-width: 600px) {
+  .pios-portal__shell { width: calc(100% - 2rem); }
+  .pios-portal__header { gap: .7rem; padding: .8rem 0; }
+  .pios-portal__header p { max-width: 6rem; text-align: right; }
+  .pios-portal__intro { display: flex; flex-direction: column; gap: 1.2rem; padding: 1.4rem 0; }
+  .pios-portal__identity { align-self: stretch; }
+  .pios-portal__identity .pios-portal__eyebrow, .pios-portal__identity small { display: none; }
+  .pios-portal__identity-name { font-size: 1.35rem; }
+  .pios-portal h1 { font-size: 2rem; }
+  .pios-portal__intro .pios-portal__index { display: none; }
+  .pios-portal__grid { grid-template-columns: minmax(0, 1fr); }
+  .pios-portal__card { min-height: 12rem; }
+  .pios-portal__heading, .pios-portal__footer { align-items: start; flex-direction: column; gap: .5rem; }
+  .pios-portal__heading > p { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pios-portal * { transition: none !important; animation: none !important; }
+}

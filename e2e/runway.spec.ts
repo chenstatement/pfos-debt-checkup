@@ -24,10 +24,10 @@ test.describe('Runway Page', () => {
   })
 
   test('home entry and existing cards preserve consent boundary', async ({ page }) => {
-    await page.goto(BASE)
+    await page.goto(BASE + '/pfos')
     await page.getByRole('button', { name: '不上班能过多久测算工具' }).click()
     await expect(page).toHaveURL(`${BASE}/runway`)
-    await page.goto(BASE)
+    await page.goto(BASE + '/pfos')
     await page.getByRole('button', { name: /盘点全部债务/ }).click()
     await expect(page).toHaveURL(`${BASE}/debts`)
   })
@@ -67,7 +67,7 @@ test.describe('Runway Page', () => {
     await page.locator('#runway-region').selectOption('national_urban')
     await page.getByRole('button', { name: '测测这笔现金能过多久' }).click()
     await page.getByRole('button', { name: '把债务和月供算进去' }).click()
-    await expect(page).toHaveURL(`${BASE}/`)
+    await expect(page).toHaveURL(`${BASE}/pfos`)
   })
 
   test('375px viewport has no horizontal overflow and privacy notice', async ({ page }) => {

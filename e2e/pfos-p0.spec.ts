@@ -8,7 +8,7 @@ const BASE = 'http://localhost:5173'
 
 /** 辅助：从首页同意声明 → 进入wizard第0步 */
 async function startWizard(page, step = 0) {
-  await page.goto(BASE)
+  await page.goto(BASE + '/pfos')
   // 如果已经同意过，按钮文字不同
   const btn = page.locator('button', { hasText: '我已了解' })
   const continueBtn = page.locator('button', { hasText: '继续录入' })
@@ -28,7 +28,7 @@ async function startWizard(page, step = 0) {
 test.describe('P0: 首页与向导', () => {
 
   test('TC-HOME-001/004: 首页加载 → 点击开始 → 进入向导步骤1', async ({ page }) => {
-    await page.goto(BASE)
+    await page.goto(BASE + '/pfos')
     await expect(page.locator('h1')).toContainText('PFOS')
     const btn = page.locator('button', { hasText: '我已了解' })
     await btn.click()
@@ -112,7 +112,7 @@ test.describe('P0: 仪表盘功能', () => {
   })
 
   test('TC-DASH-009: 首页4个功能卡片可见', async ({ page }) => {
-    await page.goto(BASE)
+    await page.goto(BASE + '/pfos')
     await expect(page.getByText('盘点全部债务')).toBeVisible()
     await expect(page.getByText('90天现金流推演')).toBeVisible()
     await expect(page.getByText('风险优先级排序')).toBeVisible()
@@ -120,7 +120,7 @@ test.describe('P0: 仪表盘功能', () => {
   })
 
   test('TC-DASH-010: 首页卡片跳转 → 债务清单', async ({ page }) => {
-    await page.goto(BASE)
+    await page.goto(BASE + '/pfos')
     await page.getByText('盘点全部债务').click()
     await page.waitForURL('**/debts**', { timeout: 5000 })
     await expect(page.getByText('债务清单')).toBeVisible()
@@ -191,7 +191,7 @@ test.describe('P0: 债务清单', () => {
     await page.waitForTimeout(200)
     await page.locator('button', { hasText: '生成体检报告' }).click()
     await page.waitForURL('**/dashboard**', { timeout: 5000 })
-    await page.goto(BASE)
+    await page.goto(BASE + '/pfos')
     await page.getByText('盘点全部债务').click()
     await page.waitForURL('**/debts**', { timeout: 5000 })
   })

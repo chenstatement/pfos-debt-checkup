@@ -69,7 +69,7 @@ export default function RunwayPage() {
   }, [])
 
   const handleReset = useCallback(() => { setResult(null); setHasCalculated(false); setShowMethodology(false); setCashError(''); setRegionError('') }, [])
-  const handleGoToWizard = useCallback(() => { navigate(hasValidConsent ? '/wizard' : '/') }, [hasValidConsent, navigate])
+  const handleGoToWizard = useCallback(() => { navigate(hasValidConsent ? '/wizard' : '/pfos') }, [hasValidConsent, navigate])
   const resultBaseline = result?.baseline ?? null
   const normalMonths = result?.tiers.normal.runwayMonths ?? 0
   const normalTimeDisplay = normalMonths >= 360 ? '30年以上' : formatRunwayDuration(normalMonths)

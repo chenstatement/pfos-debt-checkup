@@ -46,12 +46,12 @@ export default function SettingsPage() {
     resetAll()
     setShowDeleteConfirm(false)
     setDeleteConfirmText('')
-    navigate('/')
+    navigate('/pfos')
   }
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-4">
-      <button onClick={() => navigate('/')} className="text-sm text-pfos-text-muted">← 返回</button>
+      <button onClick={() => navigate('/pfos')} className="text-sm text-pfos-text-muted">← 返回</button>
       <h1 className="text-lg font-bold text-pfos-text">我的</h1>
 
       {/* Data summary */}
