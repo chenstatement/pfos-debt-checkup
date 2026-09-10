@@ -1,0 +1,19 @@
+{
+  "package_id": "f3c64d49-8a36-4b26-ae16-94151e3b3001",
+  "schema_version": "1.1.0",
+  "data_as_of": "2026-08-11",
+  "exported_at": "2026-08-11T10:00:00+08:00",
+  "source_app": "PFOS-v2",
+  "source_app_version": "2.1.0",
+  "source_rule_version": "PFOS-R01-R08@2.1.0",
+  "currency": "CNY",
+  "timezone": "Asia/Shanghai",
+  "subject_ref": "SUBJECT_01H001",
+  "consent": {"consent_record_ref": "CONSENT_001", "purpose": "internal_debt_negotiation_decision_support", "document_version": "1.1", "confirmed_at": "2026-08-11T09:55:00+08:00"},
+  "decision_preferences": {"preference_status": "not_collected", "repayment_intent_status": "not_collected", "primary_objective": null, "secondary_objectives": [], "commitment_style": "not_collected", "max_monthly_commitment_fen": null, "max_upfront_payment_fen": null},
+  "hardship": {"reason_codes": ["none"], "started_on": null, "expected_recovery_on": null, "evidence_status": "not_available"},
+  "cashflow": {"floor_monthly_income_fen": 1000000, "expected_variable_monthly_income_fen": 0, "upside_monthly_income_fen": 0, "necessary_monthly_expense_fen": 300000, "available_cash_fen": 500000, "protected_cash_fen": 300000, "income_status": "active", "income_change_effective_date": null, "income_evidence_status": "self_reported", "expense_evidence_status": "self_reported"},
+  "assets": {"liquid_assets_fen": 0, "essential_assets_fen": 0, "pledged_assets_fen": 0, "voluntary_disposable_assets_fen": 0, "asset_data_status": "unknown"},
+  "debts": [{"debt_ref": "DEBT_001", "debt_type": "bank_consumer_loan", "data_confidence": "self_reported", "entity_roles": [{"entity_ref": "ENTITY_001", "role": "legal_lender", "entity_kind": "organization", "organization_name": "示例机构", "brand_name": null, "verification_status": "unknown", "evidence_refs": []}], "product": {"brand_name": null, "product_name": null, "product_code": null, "product_identification_status": "unknown"}, "contract": {"contract_ref": null, "contract_version_ref": null, "started_on": null, "matures_on": null, "repayment_method": "unknown", "term_remaining_months": null, "contract_status": "missing"}, "amounts": {"principal_outstanding_fen": 1000000, "regular_interest_outstanding_fen": 10000, "penalty_interest_outstanding_fen": 1000, "fees_outstanding_fen": 1000, "total_claimed_balance_fen": 3000000, "current_amount_due_fen": 100000, "scheduled_monthly_due_fen": 100000, "annual_contract_rate_bps": null, "annualized_total_cost_bps": null, "penalty_rate_bps": null, "rate_basis": "unknown", "amount_breakdown_status": "complete", "amount_as_of": "2026-08-11"}, "schedule": {"next_due_date": null, "due_day": null, "scheduled_end_date": null, "payment_schedule_status": "unknown"}, "account_state": {"delinquency_state": "current", "delinquency_days": 0, "collection_stage": "none", "legal_stage": "none", "next_legal_deadline": null, "credit_reporting_state": "unknown"}, "security": {"secured": false, "collateral_ref": null, "collateral_type": null, "collateral_essential_use": null, "collateral_realizable_value_fen": null, "guaranteed": false, "guarantee_kind": null}, "evidence_refs": []}],
+  "evidence_index": [], "risk_codes": [], "missing_fields": [], "pii_exclusion_confirmed": true, "payload_hash_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pfos.local/contracts/pfos-dnos-handoff/v2.0.0/schema.json",
+  "title": "PFOS-v2 to DNOS v2.0.0 business-complete de-identified handoff package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "package_id", "schema_version", "data_as_of", "exported_at", "source_app", "source_app_version", "source_rule_version", "currency", "timezone", "subject_ref", "consent", "decision_preferences", "hardship", "cashflow", "assets", "income_streams", "expense_items", "asset_items", "household_obligations", "debts", "pfos_calculations", "evidence_index", "risk_codes", "missing_fields", "pii_exclusion_confirmed", "payload_hash_sha256"
+  ],
+  "properties": {
+    "package_id": { "$ref": "#/$defs/uuid" },
+    "schema_version": { "const": "2.0.0" },
+    "data_as_of": { "$ref": "#/$defs/date" },
+    "exported_at": { "$ref": "#/$defs/dateTime" },
+    "source_app": { "const": "PFOS-v2" },
+    "source_app_version": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "source_rule_version": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "currency": { "const": "CNY" },
+    "timezone": { "const": "Asia/Shanghai" },
+    "subject_ref": { "$ref": "#/$defs/ref" },
+    "consent": { "$ref": "#/$defs/consent" },
+    "decision_preferences": { "type": "object", "additionalProperties": true },
+    "hardship": { "type": "object", "additionalProperties": true },
+    "cashflow": { "$ref": "#/$defs/cashflow" },
+    "assets": { "$ref": "#/$defs/assets" },
+    "income_streams": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/income" } },
+    "expense_items": { "type": "array", "maxItems": 2000, "items": { "$ref": "#/$defs/expense" } },
+    "asset_items": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/asset" } },
+    "household_obligations": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/obligation" } },
+    "debts": { "type": "array", "minItems": 1, "maxItems": 500, "items": { "$ref": "#/$defs/debt" } },
+    "pfos_calculations": { "$ref": "#/$defs/calculations" },
+    "evidence_index": { "type": "array", "maxItems": 2000, "items": { "type": "object", "additionalProperties": true } },
+    "risk_codes": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 100 } },
+    "missing_fields": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/missing" } },
+    "pii_exclusion_confirmed": { "const": true },
+    "payload_hash_sha256": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "uuid": { "type": "string", "format": "uuid" },
+    "ref": { "type": "string", "minLength": 1, "maxLength": 120, "pattern": "^[A-Za-z0-9_.:/-]+$" },
+    "date": { "type": "string", "format": "date" },
+    "dateTime": { "type": "string", "format": "date-time" },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "money": { "type": "integer", "minimum": 0, "maximum": 10000000000 },
+    "signedMoney": { "type": "integer", "minimum": -10000000000, "maximum": 10000000000 },
+    "nullableMoney": { "anyOf": [{ "$ref": "#/$defs/money" }, { "type": "null" }] },
+    "consent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["consent_record_ref", "purpose", "document_version", "confirmed_at"],
+      "properties": {
+        "consent_record_ref": { "$ref": "#/$defs/ref" },
+        "purpose": { "const": "internal_debt_negotiation_decision_support" },
+        "document_version": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "confirmed_at": { "$ref": "#/$defs/dateTime" }
+      }
+    },
+    "cashflow": {
+      "type": "object", "additionalProperties": false,
+      "required": ["floor_monthly_income_fen", "expected_variable_monthly_income_fen", "upside_monthly_income_fen", "necessary_monthly_expense_fen", "available_cash_fen", "protected_cash_fen", "income_status", "income_change_effective_date", "income_evidence_status", "expense_evidence_status", "necessary_expense_breakdown"],
+      "properties": {
+        "floor_monthly_income_fen": { "$ref": "#/$defs/money" },
+        "expected_variable_monthly_income_fen": { "$ref": "#/$defs/money" },
+        "upside_monthly_income_fen": { "$ref": "#/$defs/money" },
+        "necessary_monthly_expense_fen": { "$ref": "#/$defs/money" },
+        "available_cash_fen": { "$ref": "#/$defs/money" },
+        "protected_cash_fen": { "$ref": "#/$defs/money" },
+        "income_status": { "enum": ["active", "reduced", "interrupted", "unknown"] },
+        "income_change_effective_date": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "income_evidence_status": { "enum": ["document_verified", "self_reported", "estimated", "unknown"] },
+        "expense_evidence_status": { "enum": ["document_verified", "self_reported", "estimated", "unknown"] },
+        "necessary_expense_breakdown": { "type": "array", "maxItems": 200, "items": { "type": "object", "additionalProperties": false, "required": ["category", "amount_fen"], "properties": { "category": { "type": "string", "minLength": 1, "maxLength": 80 }, "amount_fen": { "$ref": "#/$defs/money" } } } }
+      }
+    },
+    "assets": {
+      "type": "object", "additionalProperties": false,
+      "required": ["liquid_assets_fen", "essential_assets_fen", "pledged_assets_fen", "voluntary_disposable_assets_fen", "asset_data_status"],
+      "properties": {
+        "liquid_assets_fen": { "$ref": "#/$defs/money" }, "essential_assets_fen": { "$ref": "#/$defs/money" }, "pledged_assets_fen": { "$ref": "#/$defs/money" }, "voluntary_disposable_assets_fen": { "$ref": "#/$defs/money" }, "asset_data_status": { "enum": ["verified", "self_reported", "estimated", "unknown"] }
+      }
+    },
+    "income": {
+      "type": "object", "additionalProperties": false,
+      "required": ["income_ref", "source_type", "label", "amount_fen", "recurring", "certainty", "available_date", "evidence_status"],
+      "properties": { "income_ref": { "$ref": "#/$defs/ref" }, "source_type": { "type": "string", "minLength": 1, "maxLength": 80 }, "label": { "type": ["string", "null"], "maxLength": 120 }, "amount_fen": { "$ref": "#/$defs/money" }, "recurring": { "type": "boolean" }, "certainty": { "enum": ["confirmed", "likely", "uncertain"] }, "available_date": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }, "evidence_status": { "enum": ["verified", "self_reported", "estimated", "unknown"] } }
+    },
+    "expense": {
+      "type": "object", "additionalProperties": false,
+      "required": ["expense_ref", "category", "label", "amount_fen", "recurring", "essential", "deferrable", "due_day", "evidence_status"],
+      "properties": { "expense_ref": { "$ref": "#/$defs/ref" }, "category": { "type": "string", "minLength": 1, "maxLength": 80 }, "label": { "type": ["string", "null"], "maxLength": 120 }, "amount_fen": { "$ref": "#/$defs/money" }, "recurring": { "type": "boolean" }, "essential": { "type": "boolean" }, "deferrable": { "type": "boolean" }, "due_day": { "anyOf": [{ "type": "integer", "minimum": 1, "maximum": 31 }, { "type": "null" }] }, "evidence_status": { "enum": ["verified", "self_reported", "estimated", "unknown"] } }
+    },
+    "asset": {
+      "type": "object", "additionalProperties": false,
+      "required": ["asset_ref", "type", "label", "amount_fen", "liquid", "ownership", "realizable_amount_fen", "available_date", "availability_known", "pledged", "essential_use", "evidence_status"],
+      "properties": { "asset_ref": { "$ref": "#/$defs/ref" }, "type": { "type": "string", "minLength": 1, "maxLength": 80 }, "label": { "type": ["string", "null"], "maxLength": 120 }, "amount_fen": { "$ref": "#/$defs/money" }, "liquid": { "type": "boolean" }, "ownership": { "type": "string", "minLength": 1, "maxLength": 80 }, "realizable_amount_fen": { "$ref": "#/$defs/money" }, "available_date": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }, "availability_known": { "type": "boolean" }, "pledged": { "type": "boolean" }, "essential_use": { "type": "boolean" }, "evidence_status": { "enum": ["verified", "self_reported", "estimated", "unknown"] } }
+    },
+    "obligation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["obligation_ref", "category", "amount_fen", "recurring", "essential", "evidence_status"],
+      "properties": { "obligation_ref": { "$ref": "#/$defs/ref" }, "category": { "type": "string", "minLength": 1, "maxLength": 80 }, "amount_fen": { "$ref": "#/$defs/money" }, "recurring": { "type": "boolean" }, "essential": { "type": "boolean" }, "evidence_status": { "enum": ["verified", "self_reported", "estimated", "unknown"] } }
+    },
+    "debt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["debt_ref", "source_debt_ref", "creditor_ref", "debt_type", "data_confidence", "entity_roles", "product", "contract", "amounts", "schedule", "account_state", "security", "evidence_refs"],
+      "properties": {
+        "debt_ref": { "$ref": "#/$defs/ref" }, "source_debt_ref": { "$ref": "#/$defs/ref" }, "creditor_ref": { "$ref": "#/$defs/ref" }, "debt_type": { "type": "string", "minLength": 1, "maxLength": 80 }, "data_confidence": { "enum": ["document_verified", "institution_confirmed", "self_reported", "estimated", "unknown"] },
+        "entity_roles": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/entity" } },
+        "product": { "type": "object", "additionalProperties": false, "required": ["brand_name", "product_name", "product_code", "product_identification_status"], "properties": { "brand_name": { "type": ["string", "null"], "maxLength": 120 }, "product_name": { "type": ["string", "null"], "maxLength": 120 }, "product_code": { "type": ["string", "null"], "maxLength": 120 }, "product_identification_status": { "enum": ["confirmed", "brand_only", "self_reported", "unknown"] } } },
+        "contract": { "type": "object", "additionalProperties": false, "required": ["contract_ref", "contract_version_ref", "started_on", "matures_on", "repayment_method", "term_remaining_months", "contract_status"], "properties": { "contract_ref": { "anyOf": [{ "$ref": "#/$defs/ref" }, { "type": "null" }] }, "contract_version_ref": { "type": ["string", "null"], "maxLength": 120 }, "started_on": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }, "matures_on": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }, "repayment_method": { "type": "string", "minLength": 1, "maxLength": 40 }, "term_remaining_months": { "anyOf": [{ "type": "integer", "minimum": 0, "maximum": 600 }, { "type": "null" }] }, "contract_status": { "enum": ["present_complete", "present_incomplete", "missing"] } } },
+        "amounts": { "type": "object", "additionalProperties": false, "required": ["principal_outstanding_fen", "regular_interest_outstanding_fen", "penalty_interest_outstanding_fen", "fees_outstanding_fen", "total_claimed_balance_fen", "current_amount_due_fen", "scheduled_monthly_due_fen", "annual_contract_rate_bps", "annualized_total_cost_bps", "penalty_rate_bps", "rate_basis", "amount_breakdown_status", "amount_as_of"], "properties": { "principal_outstanding_fen": { "$ref": "#/$defs/money" }, "regular_interest_outstanding_fen": { "$ref": "#/$defs/nullableMoney" }, "penalty_interest_outstanding_fen": { "$ref": "#/$defs/nullableMoney" }, "fees_outstanding_fen": { "$ref": "#/$defs/nullableMoney" }, "total_claimed_balance_fen": { "$ref": "#/$defs/money" }, "current_amount_due_fen": { "$ref": "#/$defs/money" }, "scheduled_monthly_due_fen": { "$ref": "#/$defs/money" }, "annual_contract_rate_bps": { "anyOf": [{ "type": "integer", "minimum": 0, "maximum": 100000 }, { "type": "null" }] }, "annualized_total_cost_bps": { "anyOf": [{ "type": "integer", "minimum": 0, "maximum": 100000 }, { "type": "null" }] }, "penalty_rate_bps": { "anyOf": [{ "type": "integer", "minimum": 0, "maximum": 100000 }, { "type": "null" }] }, "rate_basis": { "enum": ["contract_nominal", "disclosed_apr", "calculated", "unknown"] }, "amount_breakdown_status": { "enum": ["complete", "partial", "unknown"] }, "amount_as_of": { "$ref": "#/$defs/date" } } },
+        "schedule": { "type": "object", "additionalProperties": false, "required": ["next_due_date", "due_day", "scheduled_end_date", "payment_schedule_status"], "properties": { "next_due_date": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }, "due_day": { "anyOf": [{ "type": "integer", "minimum": 1, "maximum": 31 }, { "type": "null" }] }, "scheduled_end_date": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }, "payment_schedule_status": { "enum": ["complete", "partial", "unknown"] } } },
+        "account_state": { "type": "object", "additionalProperties": false, "required": ["delinquency_state", "delinquency_days", "collection_stage", "legal_stage", "next_legal_deadline", "credit_reporting_state"], "properties": { "delinquency_state": { "type": "string", "minLength": 1, "maxLength": 60 }, "delinquency_days": { "type": "integer", "minimum": 0, "maximum": 36500 }, "collection_stage": { "type": "string", "minLength": 1, "maxLength": 60 }, "legal_stage": { "type": "string", "minLength": 1, "maxLength": 60 }, "next_legal_deadline": { "anyOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }] }, "credit_reporting_state": { "type": "string", "minLength": 1, "maxLength": 60 } } },
+        "security": { "type": "object", "additionalProperties": false, "required": ["secured", "collateral_ref", "collateral_type", "collateral_essential_use", "collateral_realizable_value_fen", "guaranteed", "guarantee_kind"], "properties": { "secured": { "type": "boolean" }, "collateral_ref": { "type": ["string", "null"], "maxLength": 120 }, "collateral_type": { "type": ["string", "null"], "maxLength": 80 }, "collateral_essential_use": { "type": ["boolean", "null"] }, "collateral_realizable_value_fen": { "$ref": "#/$defs/nullableMoney" }, "guaranteed": { "type": "boolean" }, "guarantee_kind": { "type": ["string", "null"], "maxLength": 80 } } },
+        "evidence_refs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/ref" } }
+      }
+    },
+    "entity": { "type": "object", "additionalProperties": false, "required": ["entity_ref", "role", "entity_kind", "organization_name", "brand_name", "verification_status", "evidence_refs"], "properties": { "entity_ref": { "$ref": "#/$defs/ref" }, "role": { "type": "string", "minLength": 1, "maxLength": 80 }, "entity_kind": { "enum": ["organization", "private_individual", "unknown"] }, "organization_name": { "type": ["string", "null"], "maxLength": 120 }, "brand_name": { "type": ["string", "null"], "maxLength": 120 }, "verification_status": { "type": "string", "minLength": 1, "maxLength": 80 }, "evidence_refs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/ref" } } } },
+    "calculations": { "type": "object", "additionalProperties": false, "required": ["monthly_income_fen", "monthly_essential_expense_fen", "monthly_debt_due_fen", "monthly_net_before_debt_fen", "monthly_disposable_cash_fen", "forecast_30d_gap_fen", "forecast_60d_gap_fen", "forecast_90d_gap_fen", "calculation_version", "calculated_at"], "properties": { "monthly_income_fen": { "$ref": "#/$defs/money" }, "monthly_essential_expense_fen": { "$ref": "#/$defs/money" }, "monthly_debt_due_fen": { "$ref": "#/$defs/money" }, "monthly_net_before_debt_fen": { "$ref": "#/$defs/signedMoney" }, "monthly_disposable_cash_fen": { "$ref": "#/$defs/signedMoney" }, "forecast_30d_gap_fen": { "anyOf": [{ "$ref": "#/$defs/signedMoney" }, { "type": "null" }] }, "forecast_60d_gap_fen": { "anyOf": [{ "$ref": "#/$defs/signedMoney" }, { "type": "null" }] }, "forecast_90d_gap_fen": { "anyOf": [{ "$ref": "#/$defs/signedMoney" }, { "type": "null" }] }, "calculation_version": { "type": "string", "minLength": 1, "maxLength": 80 }, "calculated_at": { "$ref": "#/$defs/dateTime" } } },
+    "missing": { "type": "object", "additionalProperties": false, "required": ["path", "reason_code", "severity", "blocks", "acquisition_code"], "properties": { "path": { "type": "string", "minLength": 1, "maxLength": 200 }, "reason_code": { "type": "string", "minLength": 1, "maxLength": 80 }, "severity": { "enum": ["blocking", "important", "informational"] }, "blocks": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 80 } }, "acquisition_code": { "type": "string", "minLength": 1, "maxLength": 80 } } }
+  }
+}

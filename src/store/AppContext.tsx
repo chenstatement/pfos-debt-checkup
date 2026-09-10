@@ -110,6 +110,23 @@ function saveData(data: AppData) {
   } catch { /* quota exceeded */ }
 }
 
+// 校验导入文件是否为 PFOS 数据备份（最小必要结构，其余字段交给 loadData 的默认值合并）
+function isAppDataLike(value: unknown): value is AppData {
+  if (typeof value !== 'object' || value === null) return false
+  const v = value as Record<string, unknown>
+  return (
+    (v.debts === undefined || Array.isArray(v.debts)) &&
+    (v.incomes === undefined || Array.isArray(v.incomes)) &&
+    (v.expenses === undefined || Array.isArray(v.expenses)) &&
+    (v.assets === undefined || Array.isArray(v.assets)) &&
+    (v.completedActions === undefined || Array.isArray(v.completedActions)) &&
+    (v.profile === undefined || typeof v.profile === 'object') &&
+    (v.negotiationData === undefined || typeof v.negotiationData === 'object') &&
+    (v.weeklyNotes === undefined || typeof v.weeklyNotes === 'string') &&
+    (v.dataAsOf === undefined || typeof v.dataAsOf === 'string')
+  )
+}
+
 // ── Context ────────────────────────────────────────────────
 
 interface AppContextType {
@@ -145,6 +162,7 @@ interface AppContextType {
   togglePrivacy: () => void
   // Export / Reset
   exportAllData: () => string
+  importAllData: (json: string) => { ok: boolean; message: string }
   resetAll: () => void
 }
 
@@ -286,6 +304,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return JSON.stringify(data, null, 2)
   }, [data])
 
+  const importAllData = useCallback((json: string) => {
+    try {
+      const parsed: unknown = JSON.parse(json)
+      if (!isAppDataLike(parsed)) {
+        return { ok: false, message: '文件内容不是有效的 PFOS 数据备份（缺少必要字段）。' }
+      }
+      setData({ ...createEmptyData(), ...parsed })
+      return { ok: true, message: '数据已恢复。' }
+    } catch {
+      return { ok: false, message: '文件不是有效的 JSON，请选择导出功能生成的备份文件。' }
+    }
+  }, [])
+
   const resetAll = useCallback(() => {
     setData(createEmptyData())
     localStorage.removeItem(STORAGE_KEY)
@@ -308,7 +339,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveWeeklyNotes,
     privacyVisible: data.privacyVisible,
     togglePrivacy,
-    exportAllData, resetAll,
+    exportAllData, importAllData, resetAll,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

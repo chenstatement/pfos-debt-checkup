@@ -17,6 +17,7 @@ import RiskPage from './pages/RiskPage'
 import ActionCenterPage from './pages/ActionCenterPage'
 import NegotiationPage from './pages/NegotiationPage'
 import SettingsPage from './pages/SettingsPage'
+import PIOSInboxPage from './pages/PIOSInboxPage'
 import DisclaimerFooter from './components/DisclaimerFooter'
 import PiosHome from './pages/PiosHome'
 
@@ -47,6 +48,7 @@ function GuardedRoutes() {
       <Route path="/actions" element={<ActionCenterPage report={report} />} />
       <Route path="/negotiation/:debtId" element={<NegotiationPage />} />
       <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/pios-inbox" element={<PIOSInboxPage />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )

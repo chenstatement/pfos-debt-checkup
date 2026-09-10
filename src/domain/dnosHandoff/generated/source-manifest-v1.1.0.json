@@ -1,0 +1,19 @@
+{
+  "contract": "pfos-dnos-handoff",
+  "schema_version": "v1.1.0",
+  "source_root": "DNOS/contracts/pfos-dnos-handoff/v1.1.0",
+  "schema": {
+    "path": "contracts/pfos-dnos-handoff/v1.1.0/schema.json",
+    "sha256": "32a82ddfffb82d00ae2ffb6c1b66ab7ef91a389ea4845bf5cbd9be099c7689e6"
+  },
+  "fixtures": {
+    "invalid-amount-breakdown.json": {
+      "path": "contracts/pfos-dnos-handoff/v1.1.0/fixtures/invalid-amount-breakdown.json",
+      "sha256": "4c1b009ba91195a3e3d158a42fcc12cd6ba7f49b728c5dcf4f045f5487a35513"
+    },
+    "valid.json": {
+      "path": "contracts/pfos-dnos-handoff/v1.1.0/fixtures/valid.json",
+      "sha256": "0083136e353d23cf5d1c046c19ef0fcfe3ac4e0de640145d1737a4fee43a2ebf"
+    }
+  }
+}

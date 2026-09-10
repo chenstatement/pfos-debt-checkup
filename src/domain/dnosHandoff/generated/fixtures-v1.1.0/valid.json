@@ -1,0 +1,23 @@
+{
+  "package_id": "f3c64d49-8a36-4b26-ae16-94151e3b3001",
+  "schema_version": "1.1.0",
+  "data_as_of": "2026-08-11",
+  "exported_at": "2026-08-11T10:00:00+08:00",
+  "source_app": "PFOS-v2",
+  "source_app_version": "2.1.0",
+  "source_rule_version": "PFOS-R01-R08@2.1.0",
+  "currency": "CNY",
+  "timezone": "Asia/Shanghai",
+  "subject_ref": "SUBJECT_01H001",
+  "consent": {"consent_record_ref": "CONSENT_001", "purpose": "internal_debt_negotiation_decision_support", "document_version": "1.1", "confirmed_at": "2026-08-11T09:55:00+08:00"},
+  "decision_preferences": {"preference_status": "system_inferred_pending_confirmation", "repayment_intent_status": "confirmed", "primary_objective": "stabilize_cashflow", "secondary_objectives": ["protect_credit"], "commitment_style": "conservative", "max_monthly_commitment_fen": null, "max_upfront_payment_fen": 0},
+  "hardship": {"reason_codes": ["job_loss"], "started_on": "2026-07-31", "expected_recovery_on": null, "evidence_status": "self_reported"},
+  "cashflow": {"floor_monthly_income_fen": 0, "expected_variable_monthly_income_fen": 0, "upside_monthly_income_fen": 0, "necessary_monthly_expense_fen": 350000, "available_cash_fen": 1200000, "protected_cash_fen": 1050000, "income_status": "interrupted", "income_change_effective_date": "2026-07-31", "income_evidence_status": "self_reported", "expense_evidence_status": "self_reported", "necessary_expense_breakdown": [{"category": "housing", "amount_fen": 200000}, {"category": "food_and_utilities", "amount_fen": 150000}]},
+  "assets": {"liquid_assets_fen": 0, "essential_assets_fen": 0, "pledged_assets_fen": 0, "voluntary_disposable_assets_fen": 0, "asset_data_status": "self_reported"},
+  "debts": [{"debt_ref": "DEBT_001", "debt_type": "credit_card", "data_confidence": "self_reported", "entity_roles": [{"entity_ref": "ENTITY_001", "role": "legal_lender", "entity_kind": "organization", "organization_name": "示例银行股份有限公司", "brand_name": "示例信用卡", "verification_status": "contract_check_required", "evidence_refs": []}], "product": {"brand_name": "示例信用卡", "product_name": null, "product_code": null, "product_identification_status": "brand_only"}, "contract": {"contract_ref": null, "contract_version_ref": null, "started_on": null, "matures_on": null, "repayment_method": "minimum_payment", "term_remaining_months": null, "contract_status": "missing"}, "amounts": {"principal_outstanding_fen": 2000000, "regular_interest_outstanding_fen": null, "penalty_interest_outstanding_fen": null, "fees_outstanding_fen": null, "total_claimed_balance_fen": 2050000, "current_amount_due_fen": 100000, "scheduled_monthly_due_fen": 100000, "annual_contract_rate_bps": 1800, "annualized_total_cost_bps": null, "penalty_rate_bps": null, "rate_basis": "contract_nominal", "amount_breakdown_status": "partial", "amount_as_of": "2026-08-11"}, "schedule": {"next_due_date": "2026-08-20", "due_day": 20, "scheduled_end_date": null, "payment_schedule_status": "partial"}, "account_state": {"delinquency_state": "anticipated_shortfall", "delinquency_days": 0, "collection_stage": "none", "legal_stage": "none", "next_legal_deadline": null, "credit_reporting_state": "current"}, "security": {"secured": false, "collateral_ref": null, "collateral_type": null, "collateral_essential_use": null, "collateral_realizable_value_fen": null, "guaranteed": false, "guarantee_kind": null}, "evidence_refs": []}],
+  "evidence_index": [],
+  "risk_codes": ["INCOME_INTERRUPTED"],
+  "missing_fields": [{"path": "/debts/0/contract", "reason_code": "document_missing", "severity": "important", "blocks": ["offer_acceptance", "client_ready_report"], "acquisition_code": "INDEX_CONTRACT"}],
+  "pii_exclusion_confirmed": true,
+  "payload_hash_sha256": "81da194c61cd194db4970bc1df79aff38b86b7e78733df88835cff94dd7409be"
+}

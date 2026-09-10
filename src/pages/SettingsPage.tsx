@@ -1,16 +1,20 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../store/AppContext'
 import { DISCLAIMER_VERSION } from '../domain/constants'
-import { exportDnosHandoff } from '../domain/dnosHandoff/exporter'
+import { exportDnosHandoffV2 } from '../domain/dnosHandoff/exporter-v2'
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { data, exportAllData, resetAll } = useApp()
+  const { data, exportAllData, importAllData, resetAll } = useApp()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [showDnosExportConfirm, setShowDnosExportConfirm] = useState(false)
   const [dnosExportError, setDnosExportError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showImportConfirm, setShowImportConfirm] = useState(false)
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importMessage, setImportMessage] = useState<{ ok: boolean; text: string } | null>(null)
 
   const handleExport = () => {
     const json = exportAllData()
@@ -24,7 +28,7 @@ export default function SettingsPage() {
   }
 
   const handleDnosExport = async () => {
-    const result = await exportDnosHandoff(data)
+    const result = await exportDnosHandoffV2(data)
     if (!result.ok) {
       setDnosExportError(`${result.message}${result.missingFields.length > 0 ? `（缺少：${result.missingFields.join('、')}）` : ''}`)
       setShowDnosExportConfirm(false)
@@ -34,11 +38,37 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `PFOS_DNOS_handoff_${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `PFOS_DNOS_handoff_complete_${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
     setDnosExportError(null)
     setShowDnosExportConfirm(false)
+  }
+
+  const handleImportFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImportFile(file)
+    setImportMessage(null)
+    setShowImportConfirm(true)
+    e.target.value = ''
+  }
+
+  const handleImportConfirm = () => {
+    if (!importFile) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = importAllData(String(reader.result))
+      setImportMessage({ ok: result.ok, text: result.message })
+      setShowImportConfirm(false)
+      setImportFile(null)
+    }
+    reader.onerror = () => {
+      setImportMessage({ ok: false, text: '读取文件失败，请重试。' })
+      setShowImportConfirm(false)
+      setImportFile(null)
+    }
+    reader.readAsText(importFile)
   }
 
   const handleDelete = () => {
@@ -53,6 +83,19 @@ export default function SettingsPage() {
     <div className="max-w-lg mx-auto px-4 py-5 safe-bottom space-y-4">
       <button onClick={() => navigate('/pfos')} className="text-sm text-pfos-text-muted">← 返回</button>
       <h1 className="text-lg font-bold text-pfos-text">我的</h1>
+
+      <div className="bg-pfos-surface rounded-xl p-4 border border-pfos-border">
+        <h3 className="text-sm font-semibold text-pfos-text mb-2">PIOS 统一输入</h3>
+        <p className="text-xs leading-relaxed text-pfos-text-muted mb-3">
+          从一个对话入口进入的 PFOS 事项会先放入输入箱；你确认债务归属后，才写入本地沟通记录。
+        </p>
+        <button
+          onClick={() => navigate('/pios-inbox')}
+          className="w-full py-2.5 border border-pfos-accent text-pfos-accent rounded-xl text-sm font-medium tap-active"
+        >
+          打开 PIOS 输入箱
+        </button>
+      </div>
 
       {/* Data summary */}
       <div className="bg-pfos-surface rounded-xl p-4 border border-pfos-border">
@@ -105,17 +148,46 @@ export default function SettingsPage() {
           导出所有数据 (JSON)
         </button>
 
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json,application/json"
+          onChange={handleImportFileSelected}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full py-3 border border-pfos-accent text-pfos-accent rounded-xl font-medium tap-active"
+        >
+          导入数据备份 (JSON)
+        </button>
+
+        {showImportConfirm && (
+          <div role="dialog" aria-label="确认导入数据备份" className="bg-pfos-surface rounded-xl p-4 border border-pfos-accent space-y-3">
+            <p className="text-sm font-semibold text-pfos-text">确认导入「{importFile?.name}」？</p>
+            <p className="text-xs text-pfos-text-muted">导入会用备份文件覆盖当前全部数据。建议先导出当前数据，确认无误后再导入。</p>
+            <div className="flex gap-2">
+              <button onClick={handleImportConfirm} className="flex-1 py-2 bg-pfos-accent text-white rounded-lg text-sm font-medium">确认导入</button>
+              <button onClick={() => { setShowImportConfirm(false); setImportFile(null) }} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">取消</button>
+            </div>
+          </div>
+        )}
+
+        {importMessage && (
+          <p role="alert" className={`text-xs ${importMessage.ok ? 'text-green-700' : 'text-red-600'}`}>{importMessage.text}</p>
+        )}
+
         <button
           onClick={() => { setDnosExportError(null); setShowDnosExportConfirm(true) }}
           className="w-full py-3 border border-pfos-accent text-pfos-accent rounded-xl font-medium tap-active"
         >
-          导出 DNOS 脱敏交接包
+          导出 DNOS 完整脱敏交接包
         </button>
 
         {showDnosExportConfirm && (
-          <div role="dialog" aria-label="确认导出 DNOS 脱敏交接包" className="bg-pfos-surface rounded-xl p-4 border border-pfos-accent space-y-3">
+          <div role="dialog" aria-label="确认导出 DNOS 完整脱敏交接包" className="bg-pfos-surface rounded-xl p-4 border border-pfos-accent space-y-3">
             <p className="text-sm font-semibold text-pfos-text">导出前确认用途与字段范围</p>
-            <p className="text-xs text-pfos-text-muted">交接包仅用于本地 DNOS 协商决策工作台，将排除姓名、联系方式、证件号、账户号、债权方名称和沟通原文。</p>
+            <p className="text-xs text-pfos-text-muted">交接包仅用于本地 DNOS 协商决策工作台，将保留债务机构、产品、金额、期限和现金流等决策所需业务信息，但排除姓名、联系方式、证件号、完整账户号和沟通原文。</p>
             <p className="text-xs text-pfos-text-muted">确认后文件会下载到本机，不会自动上传；不合格或未授权时不会生成文件。</p>
             <div className="flex gap-2">
               <button onClick={handleDnosExport} className="flex-1 py-2 bg-pfos-accent text-white rounded-lg text-sm font-medium">确认并导出</button>

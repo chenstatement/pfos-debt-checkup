@@ -1,0 +1,10 @@
+{
+  "contract": "pfos-dnos-handoff",
+  "schema_version": "v2.0.0",
+  "source_root": "DNOS/contracts/pfos-dnos-handoff/v2.0.0",
+  "schema": {
+    "path": "contracts/pfos-dnos-handoff/v2.0.0/schema.json",
+    "sha256": "4708034678fa53156cb49d454ac6bc5832de37f05dc4c6e5adc3d9bec201f67a"
+  },
+  "fixtures": {}
+}
