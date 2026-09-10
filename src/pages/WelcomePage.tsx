@@ -104,7 +104,7 @@ export default function WelcomePage() {
       </div>
 
       {/* Privacy */}
-      <button type="button" onClick={() => navigate('/')} className="text-xs mt-5 text-[#007AFF] underline underline-offset-2">返回 PIOS 个人系统入口</button>
+      <a href="https://pios.chenshushi.tech" className="text-xs mt-5 text-[#007AFF] underline underline-offset-2">返回 PIOS 个人系统入口</a>
       <p className="text-xs mt-8" style={{ color: '#8E8E93' }}>
         🔒 所有数据仅在本地浏览器中处理
       </p>
